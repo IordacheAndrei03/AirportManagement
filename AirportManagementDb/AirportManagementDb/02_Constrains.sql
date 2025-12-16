@@ -1,0 +1,143 @@
+USE AirportManagement;
+GO
+
+---------- PRIMARY KEYS ----------
+
+ALTER TABLE dbo.Adress
+ADD CONSTRAINT PK_Adress PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.Airport
+ADD CONSTRAINT PK_Airport PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.Aircraft
+ADD CONSTRAINT PK_Aircraft PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.Airline
+ADD CONSTRAINT PK_Airline PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.[User]
+ADD CONSTRAINT PK_User PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.BookingStatus
+ADD CONSTRAINT PK_BookingStatus PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.FlightStatus
+ADD CONSTRAINT PK_FlightStatus PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.Gate
+ADD CONSTRAINT PK_Gate PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.Flight
+ADD CONSTRAINT PK_Flight PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.FlightSchedule
+ADD CONSTRAINT PK_FlightSchedule PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.Booking
+ADD CONSTRAINT PK_Booking PRIMARY KEY CLUSTERED (Id);
+
+ALTER TABLE dbo.Ticket
+ADD CONSTRAINT PK_Ticket PRIMARY KEY CLUSTERED (Id);
+
+
+---------- FOREIGN KEYS ----------
+
+ALTER TABLE dbo.Airport
+ADD CONSTRAINT FK_Airport_Adress
+FOREIGN KEY (AdressId) REFERENCES dbo.Adress(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.Gate
+ADD CONSTRAINT FK_Gate_Airport
+FOREIGN KEY (AirportId) REFERENCES dbo.Airport(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.Flight
+ADD CONSTRAINT FK_Flight_Airline
+FOREIGN KEY (AirlineId) REFERENCES dbo.Airline(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.Flight
+ADD CONSTRAINT FK_Flight_OriginAirport
+FOREIGN KEY (OriginAirport) REFERENCES dbo.Airport(Id)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE dbo.Flight
+ADD CONSTRAINT FK_Flight_DestinationAirport
+FOREIGN KEY (DestinationAirport) REFERENCES dbo.Airport(Id)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE dbo.Flight
+ADD CONSTRAINT FK_Flight_DefaultAircraft
+FOREIGN KEY (DefaultAircraftId) REFERENCES dbo.Aircraft(Id)
+ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE dbo.FlightSchedule
+ADD CONSTRAINT FK_Flightschedule_Flight
+FOREIGN KEY (FlightId) REFERENCES dbo.Flight(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.FlightSchedule
+ADD CONSTRAINT FK_FlightSchedule_Gate
+FOREIGN KEY (GateId) REFERENCES dbo.Gate(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.FlightSchedule
+ADD CONSTRAINT FK_FlightSchedule_Aircraft
+FOREIGN KEY (AssignedAircraftId) REFERENCES dbo.Aircraft(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.FlightSchedule
+ADD CONSTRAINT FK_FlightScheduled_Status
+FOREIGN KEY (FlightStatusId) REFERENCES dbo.FlightStatus(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.Booking
+ADD CONSTRAINT FK_Booking_User
+FOREIGN KEY (UserId) REFERENCES dbo.[User](Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.Booking
+ADD CONSTRAINT FK_Booking_BookingStatus
+FOREIGN KEY (BookingStatusId) REFERENCES dbo.BookingStatus(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.Ticket
+ADD CONSTRAINT FK_Ticket_Booking
+FOREIGN KEY (BookingId) REFERENCES dbo.Booking(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE dbo.Ticket
+ADD CONSTRAINT FK_Ticket_FlightSchedule
+FOREIGN KEY (FlightScheduleId) REFERENCES dbo.FlightSchedule(Id)
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+
+---------- CHECKS ----------
+
+ALTER TABLE dbo.Aircraft
+ADD CONSTRAINT CK_Aircraft_SeatCapacity_Positive
+CHECK (SeatCapacity > 0);
+
+ALTER TABLE dbo.Flight
+ADD CONSTRAINT CK_Flight_Origin_Destination_Different
+CHECK (OriginAirport <> DestinationAirport);
+
+ALTER TABLE dbo.Booking
+ADD CONSTRAINT CK_Booking_Quanity_Positive
+CHECK (Quantity > 0);
+
+ALTER TABLE dbo.Ticket
+ADD CONSTRAINT CK_Ticket_Price_Consistency
+CHECK (BasePrice > 0 AND Taxes >= 0 AND TotalPrice = BasePrice + Taxes);
+
+
+---------- DEFAULTS ----------
+
+ALTER TABLE dbo.Flight
+ADD CONSTRAINT DF_Flight_IsActive
+DEFAULT (1) FOR IsActive;
+
+ALTER TABLE dbo.Booking
+ADD CONSTRAINT DF_Booking_CreatedUtc
+DEFAULT (SYSUTCDATETIME()) FOR CreatedUtc;

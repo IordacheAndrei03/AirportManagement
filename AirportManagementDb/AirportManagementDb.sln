@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# SQL Server Management Studio Version 21
+VisualStudioVersion = 17.14.36603.0 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{4F2E2C19-372F-40D8-9FA7-9D2138C6997A}") = "AirportManagementDb", "AirportManagementDb\AirportManagementDb.ssmssqlproj", "{6603CA47-725B-21F9-A9BA-2283EABB7F6F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Default = Default|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6603CA47-725B-21F9-A9BA-2283EABB7F6F}.Default|Default.ActiveCfg = Default
+		{4DC59F7B-5FD6-4B7B-8732-69A651368B75}.Default|Default.ActiveCfg = Default
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E691A30C-D6C8-4087-BA25-3ED43BC75922}
+	EndGlobalSection
+EndGlobal
