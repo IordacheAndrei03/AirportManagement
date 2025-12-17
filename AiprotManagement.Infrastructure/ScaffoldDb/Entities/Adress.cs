@@ -1,7 +1,8 @@
-﻿using System;
+﻿using AirprotManagement.Infrastructure.ScaffoldDb.Entities;
+using System;
 using System.Collections.Generic;
 
-namespace AirprotManagement.Infrastructure.ScaffoldDb.Entities;
+namespace AirportManagement.Infrastructure.ScaffoldDb.Entities;
 
 public partial class Adress
 {

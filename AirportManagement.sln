@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirportManagement.Domain", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirportManagement.Application", "AirportManagement.Application\AirportManagement.Application.csproj", "{1296486C-8095-49F3-9541-0CC400623AC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirprotManagement.Infrastructure", "AiprotManagement.Infrastructure\AirprotManagement.Infrastructure.csproj", "{EFFAC68E-6F0D-446C-A171-6061215F9AFE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirportManagement.Infrastructure", "AiprotManagement.Infrastructure\AirportManagement.Infrastructure.csproj", "{EFFAC68E-6F0D-446C-A171-6061215F9AFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

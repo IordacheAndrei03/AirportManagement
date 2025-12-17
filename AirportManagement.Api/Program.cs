@@ -1,5 +1,6 @@
 using AirprotManagement.Infrastructure.ScaffoldDb.Context;
 using Microsoft.EntityFrameworkCore;
+using AirportManagement.Infrastructure.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AirportManagementContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("AirportManagementConnectionString")));
+
+builder.Services.AddAutoMapper(options => { },typeof(EfToDomainMapper).Assembly);
 
 var app = builder.Build();
 
