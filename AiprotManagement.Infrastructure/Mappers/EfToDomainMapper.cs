@@ -18,6 +18,9 @@ using EfTicket = AirportManagement.Infrastructure.ScaffoldDb.Entities.Ticket;
 using DomainAirline = AirportManagement.Domain.Entities.Airline;
 using EfAirline = AirportManagement.Infrastructure.ScaffoldDb.Entities.Airline;
 
+using DomainFlightSchedule = AirportManagement.Domain.Entities.FlightSchedule   ;
+using EfFlightSchedule = AirportManagement.Infrastructure.ScaffoldDb.Entities.FlightSchedule;
+
 namespace AirportManagement.Infrastructure.Mappers
 {
     public class EfToDomainMapper:Profile
@@ -30,6 +33,7 @@ namespace AirportManagement.Infrastructure.Mappers
             CreateMap<EfBooking, DomainBooking>().ReverseMap();
             CreateMap<EfTicket, DomainTicket>().ReverseMap();
             CreateMap<EfAirline, DomainAirline>().ReverseMap();
+            CreateMap<EfFlightSchedule, DomainFlightSchedule>().ReverseMap();
         }
     }
 }

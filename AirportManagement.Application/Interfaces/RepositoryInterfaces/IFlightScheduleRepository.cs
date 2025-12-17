@@ -12,12 +12,12 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
     {
         Task<DomainFlightSchedule?> GetByIdWithDetailsAsync(int id);
 
-        //Task<IReadOnlyList<DomainFlightSchedule>> SearchUpcomingByRouteAndDateAsync(
-        //    string originIata,
-        //    string destinationIata,
-        //    DateTime departureDateUtc,
-        //    int page,
-        //    int pageSize);
+        Task<IReadOnlyList<DomainFlightSchedule>> SearchUpcomingByRouteAndDateAsync(
+            string originIata,
+            string destinationIata,
+            DateTime departureDateUtc,
+            int page,
+            int pageSize);
 
         Task<bool> HasGateOverlapAsync(
             int gateId,

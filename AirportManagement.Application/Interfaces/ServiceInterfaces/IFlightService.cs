@@ -12,5 +12,11 @@ namespace AirportManagement.Application.Interfaces.ServiceInterfaces
     public interface IFlightService
     {
         Task<ResultObject<FlightDetailsDto>> GetByIdAsync(int id);
+        Task<ResultObject<IReadOnlyList<FlightSearchScheduleDto>>> SearchByRouteAndDateAsync(
+           string originIata,
+           string destinationIata,
+           DateOnly departureDate,
+           int page,
+           int pageSize);
     }
 }

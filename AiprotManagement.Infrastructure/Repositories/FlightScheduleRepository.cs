@@ -43,39 +43,42 @@ namespace AirportManagement.Infrastructure.Repositories
             return _mapper.Map<DomainFlightSchedule?>(efEntity);
         }
 
-        //public async Task<IReadOnlyList<DomainFlightSchedule>> SearchUpcomingByRouteAndDateAsync(
-        //    string originIata,
-        //    string destinationIata,
-        //    DateTime departureDateUtc,
-        //    int page,
-        //    int pageSize)
-        //{
-        //    if (page <= 0) page = 1;
-        //    if (pageSize <= 0) pageSize = 20;
+        public async Task<IReadOnlyList<DomainFlightSchedule>> SearchUpcomingByRouteAndDateAsync(
+            string originIata,
+            string destinationIata,
+            DateTime departureDateUtc,
+            int page,
+            int pageSize)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 20;
 
-        //    var start = departureDateUtc.Date;
-        //    var end = start.AddDays(1);
+            var start = departureDateUtc.Date;
+            var end = start.AddDays(1);
 
-        //    var query = await _context.FlightSchedules
-        //        .Include(fs => fs.Flight)
-        //            .ThenInclude(f => f.Airline)
-        //        .Include(fs => fs.Flight)
-        //            .ThenInclude(f => f.OriginAirportNavigation)
-        //        .Include(fs => fs.Flight)
-        //            .ThenInclude(f => f.DestinationAirportNavigation)
-        //        .Where(fs =>
-        //            fs.ScheduledDepartureUtc >= start &&
-        //            fs.ScheduledDepartureUtc < end &&
-        //            fs.Flight.OriginAirportNavigation.IATACode == originIata &&
-        //            fs.Flight.DestinationAirportNavigation.IATACode == destinationIata)
-        //        .OrderBy(fs => fs.ScheduledDepartureUtc)
-        //        .AsNoTracking();
+            var query = _context.FlightSchedules
+                .Include(fs => fs.Flight).ThenInclude(f => f.Airline)
+                .Include(fs => fs.Flight).ThenInclude(f => f.OriginAirportNavigation)
+                .Include(fs => fs.Flight).ThenInclude(f => f.DestinationAirportNavigation)
+                .Where(fs =>
+                    fs.ScheduledDepartureUtc >= start &&
+                    fs.ScheduledDepartureUtc < end &&
+                    fs.Flight.OriginAirportNavigation.Iatacode == originIata &&   
+                    fs.Flight.DestinationAirportNavigation.Iatacode == destinationIata)
+                .OrderBy(fs => fs.ScheduledDepartureUtc)
+                .AsNoTracking();
 
-        //    return await query
-        //        .Skip((page - 1) * pageSize)
-        //        .Take(pageSize)
-        //        .ToListAsync();
-        //}
+
+            var efResults = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var domainResults = _mapper.Map<IReadOnlyList<DomainFlightSchedule>>(efResults);
+
+            return domainResults;
+        }
+
 
         public async Task<bool> HasGateOverlapAsync(
             int gateId,
