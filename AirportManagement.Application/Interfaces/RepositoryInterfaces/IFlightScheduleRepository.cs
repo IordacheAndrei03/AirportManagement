@@ -4,20 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DomainFlightSchedule = AirportManagement.Domain.Entities.FlightSchedule   ;
+using DomainFlightSchedule = AirportManagement.Domain.Entities.FlightSchedule;
 
-namespace AirportManagement.Application.Interfaces
+namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
 {
     public interface IFlightScheduleRepository : IGenericRepository<DomainFlightSchedule>
     {
         Task<DomainFlightSchedule?> GetByIdWithDetailsAsync(int id);
 
-        Task<IReadOnlyList<DomainFlightSchedule>> SearchUpcomingByRouteAndDateAsync(
-            string originIata,
-            string destinationIata,
-            DateTime departureDateUtc,
-            int page,
-            int pageSize);
+        //Task<IReadOnlyList<DomainFlightSchedule>> SearchUpcomingByRouteAndDateAsync(
+        //    string originIata,
+        //    string destinationIata,
+        //    DateTime departureDateUtc,
+        //    int page,
+        //    int pageSize);
 
         Task<bool> HasGateOverlapAsync(
             int gateId,

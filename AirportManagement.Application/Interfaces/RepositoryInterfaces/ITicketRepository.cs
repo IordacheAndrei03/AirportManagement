@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DomainTicket = AirportManagement.Domain.Entities.Ticket;
-namespace AirportManagement.Application.Interfaces
+namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
 {
     public interface ITicketRepository : IGenericRepository<DomainTicket>
     {

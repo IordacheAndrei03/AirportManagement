@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AirportManagement.Application.Interfaces
+namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
 {
     public interface IUnitOfWork
     {

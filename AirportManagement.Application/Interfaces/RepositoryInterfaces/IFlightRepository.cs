@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 using DomainFlight = AirportManagement.Domain.Entities.Flight;
 
 
-namespace AirportManagement.Application.Interfaces
+namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
 {
     public interface IFlightRepository : IGenericRepository<DomainFlight>
     {
-        Task<Flight?> GetByIdWithDetailsAsync(int id);
+        Task<DomainFlight?> GetByIdWithDetailsAsync(int id);
         Task<bool> ExistsDuplicateRouteAsync(
            int airlineId,
            string flightNumber,
            int originAirportId,
            int destinationAirportId,
            int? excludeFlightId = null);
-        Task<Flight?> GetByBusinessKeyAsync(
+        Task<DomainFlight?> GetByBusinessKeyAsync(
             int airlineId,
             string flightNumber,
             int originAirportId,

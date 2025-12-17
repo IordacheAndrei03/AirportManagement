@@ -1,4 +1,4 @@
-﻿using AirprotManagement.Infrastructure.ScaffoldDb.Entities;
+﻿using AirportManagement.Infrastructure.ScaffoldDb.Entities;
 using System;
 using System.Collections.Generic;
 

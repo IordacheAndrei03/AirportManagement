@@ -1,7 +1,8 @@
-﻿using AirportManagement.Application.Interfaces;
+﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Infrastructure.ScaffoldDb.Entities;
 using AirprotManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ using EfTicket = AirportManagement.Infrastructure.ScaffoldDb.Entities.Ticket;
 
 namespace AirportManagement.Infrastructure.Repositories
 {
-    public class TicketRepository : GenericRepository<DomainTicket, EfTicket>,ITicketRepository
+    public class TicketRepository : GenericRepository<DomainTicket, EfTicket>, ITicketRepository
     {
         private readonly AirportManagementContext _context;
         private readonly IMapper _mapper;

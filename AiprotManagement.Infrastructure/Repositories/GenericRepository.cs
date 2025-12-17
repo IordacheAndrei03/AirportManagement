@@ -1,4 +1,4 @@
-﻿using AirportManagement.Application.Interfaces;
+﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirprotManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +43,7 @@ namespace AirportManagement.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<TDomain>> FindAsync(Func<T, bool> predicate)
+        public Task<IEnumerable<TDomain>> FindAsync(Func<TDomain, bool> predicate)
         {
             throw new NotImplementedException();
         }
@@ -53,7 +53,7 @@ namespace AirportManagement.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<TDomain> GetByIdAsync(int id)
+        public virtual async Task<TDomain> GetByIdAsync(int id)
         {
             var efEntity = await _dbSet.FindAsync(id);
             return _mapper.Map<TDomain>(efEntity);

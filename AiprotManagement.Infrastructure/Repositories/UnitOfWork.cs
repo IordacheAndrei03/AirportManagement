@@ -1,4 +1,4 @@
-﻿using AirportManagement.Application.Interfaces;
+﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirprotManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using System;
@@ -36,7 +36,7 @@ namespace AirportManagement.Infrastructure.Repositories
             _ticketRepository ??= new TicketRepository(_context,_mapper);
 
         public IBookingRepository BookingRepository =>
-            _bookingRepository ??= new BookingRepository(_context);
+            _bookingRepository ??= new BookingRepository(_context,_mapper);
 
         public async Task<int> SaveChangesAsync()
         {
