@@ -1,6 +1,7 @@
 using AirportManagement.Application.Configurations;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
+using AirportManagement.Application.Middleware;
 using AirportManagement.Application.Services;
 using AirportManagement.Infrastructure.Mappers;
 using AirportManagement.Infrastructure.Repositories;
@@ -36,6 +37,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

@@ -76,23 +76,12 @@ namespace AirportManagement.Api.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            try
-            {
-                var id = await _flightService.CreateFlightAsync(dto);
+            var id = await _flightService.CreateFlightAsync(dto);
 
-                return CreatedAtAction(
-                    nameof(GetById), 
-                    new { id },
-                    null);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new ValidationProblemDetails
-                {
-                    Title = "Invalid flight",
-                    Detail = ex.Message
-                });
-            }
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id },
+                null);
         }
 
         [HttpPut("{id:int}")]
@@ -105,28 +94,8 @@ namespace AirportManagement.Api.Controllers
             {
                 return ValidationProblem(ModelState);
             }
-
-            try
-            {
-                await _flightService.UpdateAsync(id, dto);
-                return Ok(); 
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "Flight not found",
-                    Detail = ex.Message
-                });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new ValidationProblemDetails
-                {
-                    Title = "Invalid flight",
-                    Detail = ex.Message
-                });
-            }
+            await _flightService.UpdateAsync(id, dto);
+            return Ok();
         }
 
         [HttpDelete("{id:int}")]
@@ -134,27 +103,8 @@ namespace AirportManagement.Api.Controllers
             int id
             )
         {
-            try
-            {
-                await _flightService.DeleteAsync(id);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "Flight not found",
-                    Detail = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(new ProblemDetails
-                {
-                    Title = "Cannot delete flight",
-                    Detail = ex.Message
-                });
-            }
+            await _flightService.DeleteAsync(id);
+            return NoContent();
         }
 
     }
