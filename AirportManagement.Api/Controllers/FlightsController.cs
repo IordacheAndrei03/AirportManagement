@@ -19,8 +19,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<FlightDetailsDto>> GetById(
-            int id
-            )
+            int id)
         {
 
             var result = await _flightService.GetByIdAsync(id);
@@ -44,8 +43,7 @@ namespace AirportManagement.Api.Controllers
             [FromQuery] string destination,
             [FromQuery] DateOnly date,
             [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 20
-            )
+            [FromQuery] int pageSize = 20)
         {
             var result = await _flightService.SearchByRouteAndDateAsync(
                 origin,
@@ -68,8 +66,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpPost]
         public async Task<ActionResult> Create(
-           [FromBody] FlightCreateDto dto
-            )
+           [FromBody] FlightCreateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -87,8 +84,7 @@ namespace AirportManagement.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Update(
             int id,
-            [FromBody] FlightCreateDto dto
-            )
+            [FromBody] FlightCreateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -100,8 +96,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(
-            int id
-            )
+            int id)
         {
             await _flightService.DeleteAsync(id);
             return NoContent();

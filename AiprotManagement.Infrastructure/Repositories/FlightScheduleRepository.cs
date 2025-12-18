@@ -25,23 +25,23 @@ namespace AirportManagement.Infrastructure.Repositories
             _mapper = mapper;
         }
 
-        public async Task<DomainFlightSchedule?> GetByIdWithDetailsAsync(int id)
-        {
-            var efEntity = await _context.FlightSchedules
-                .Include(fs => fs.Flight)
-                    .ThenInclude(f => f.Airline)
-                .Include(fs => fs.Flight)
-                    .ThenInclude(f => f.OriginAirportNavigation)
-                .Include(fs => fs.Flight)
-                    .ThenInclude(f => f.DestinationAirportNavigation)
-                .Include(fs => fs.Gate)
-                .Include(fs => fs.AssignedAircraft)
-                .Include(fs => fs.FlightStatus)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(fs => fs.Id == id);
+        //public async Task<DomainFlightSchedule?> GetByIdWithDetailsAsync(int id)
+        //{
+        //    var efEntity = await _context.FlightSchedules
+        //        .Include(fs => fs.Flight)
+        //            .ThenInclude(f => f.Airline)
+        //        .Include(fs => fs.Flight)
+        //            .ThenInclude(f => f.OriginAirportNavigation)
+        //        .Include(fs => fs.Flight)
+        //            .ThenInclude(f => f.DestinationAirportNavigation)
+        //        .Include(fs => fs.Gate)
+        //        .Include(fs => fs.AssignedAircraft)
+        //        .Include(fs => fs.FlightStatus)
+        //        .AsNoTracking()
+        //        .FirstOrDefaultAsync(fs => fs.Id == id);
             
-            return _mapper.Map<DomainFlightSchedule?>(efEntity);
-        }
+        //    return _mapper.Map<DomainFlightSchedule?>(efEntity);
+        //}
 
         public async Task<IReadOnlyList<DomainFlightSchedule>> SearchUpcomingByRouteAndDateAsync(
             string originIata,
@@ -99,10 +99,30 @@ namespace AirportManagement.Infrastructure.Repositories
                     fs.ScheduleArrivalUtc > fromUtc);
         }
 
-        public async Task<bool> AnyByFlightIdAsync(int flightId, CancellationToken cancellationToken = default)
+        public async Task<bool> AnyByFlightIdAsync(int flightId)
         {
             return await _context.FlightSchedules
-                .AnyAsync(fs => fs.FlightId == flightId, cancellationToken);
+                .AnyAsync(fs => fs.FlightId == flightId);
+        }
+
+        public async Task<DomainFlightSchedule?> GetByIdWithDetailsAsync(int id)
+        {
+
+            var EfEntity = await _context.FlightSchedules
+                .Include(fs => fs.Flight)
+                    .ThenInclude(f => f.Airline)
+                .Include(fs => fs.Flight)
+                    .ThenInclude(f => f.OriginAirportNavigation)
+                .Include(fs => fs.Flight)
+                    .ThenInclude(f => f.DestinationAirportNavigation)
+                .Include(fs => fs.Gate)
+                    .ThenInclude(g => g.Airport)
+                .Include(fs => fs.AssignedAircraft)
+                .Include(fs => fs.FlightStatus)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(fs => fs.Id == id);
+
+            return _mapper.Map<DomainFlightSchedule?>(EfEntity);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AirportManagement.Application.Dtos.Flights;
+using AirportManagement.Application.Dtos.FlightSchedulesDtos;
 using AirportManagement.Domain.Entities;
 using AutoMapper;
 using System;
@@ -48,6 +49,25 @@ namespace AirportManagement.Application.Configurations
                     opt => opt.MapFrom(src => src.FlightNumber))
                 .ForMember(dest => dest.IsActive,
                     opt => opt.MapFrom(src => src.IsActive));
+
+            CreateMap<FlightSchedule, FlightScheduleDetailsDto>()
+            .ForMember(dest => dest.FlightId,
+                opt => opt.MapFrom(src => src.FlightId))
+            .ForMember(dest => dest.AirlineIata,
+                opt => opt.MapFrom(src => src.Flight.Airline.Iatacode))
+            .ForMember(dest => dest.FlightNumber,
+                opt => opt.MapFrom(src => src.Flight.FlightNumber))
+            .ForMember(dest => dest.OriginIata,
+                opt => opt.MapFrom(src => src.Flight.OriginAirportNavigation.Iatacode))
+            .ForMember(dest => dest.DestinationIata,
+                opt => opt.MapFrom(src => src.Flight.DestinationAirportNavigation.Iatacode))
+            .ForMember(dest => dest.GateCode,
+                opt => opt.MapFrom(src => src.Gate.Airport.Iatacode + ":" + src.Gate.Code))
+            .ForMember(dest => dest.AircraftTail,
+                opt => opt.MapFrom(src => src.AssignedAircraft.TailNumber))
+            .ForMember(dest => dest.Status,
+                opt => opt.MapFrom(src => src.FlightStatus.Status));
         }
     }
+    
 }
