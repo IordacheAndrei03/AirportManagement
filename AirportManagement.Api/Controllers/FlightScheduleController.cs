@@ -35,5 +35,23 @@ namespace AirportManagement.Api.Controllers
             };
         }
 
+        [HttpGet("upcoming-stats/{days:int}")]
+        public async Task<ActionResult<IReadOnlyList<UpcomingSchedulesDto>>> GetUpcomingStats([FromRoute] int days = 7)
+        {
+            var result = await _scheduleService.GetUpcomingStatsAsync(days);
+
+            return result.Status switch
+            {
+                ResultStatus.Ok => Ok(result.Value),
+                ResultStatus.NotFound => NotFound(new ProblemDetails
+                {
+                    Title = "Flight not found",
+                    Detail = result.Error
+                }),
+                _ => Problem(statusCode: 500, title: "Unexpected error")
+            };
+
+        }
+
     }
 }

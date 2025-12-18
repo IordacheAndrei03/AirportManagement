@@ -8,6 +8,7 @@ using AirportManagement.Infrastructure.Repositories;
 using AirprotManagement.Infrastructure.ScaffoldDb.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,15 +31,32 @@ typeof(EfToDomainMapper).Assembly,
 typeof(MapperConfig).Assembly
 );
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "AirportManagement API",
+        Version = "v1"
+    });
+
+    // Aici îi explic?m lui Swagger ce e DateOnly
+    c.MapType<DateOnly>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "date"
+    });
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 
 app.UseMiddleware<ExceptionMiddleware>();
 

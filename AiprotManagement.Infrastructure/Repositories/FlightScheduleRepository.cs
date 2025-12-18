@@ -1,4 +1,5 @@
-﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
+﻿using AirportManagement.Application.Dtos;
+using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Infrastructure.ScaffoldDb.Entities;
 using AirprotManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
@@ -123,6 +124,26 @@ namespace AirportManagement.Infrastructure.Repositories
                 .FirstOrDefaultAsync(fs => fs.Id == id);
 
             return _mapper.Map<DomainFlightSchedule?>(EfEntity);
+        }
+
+        public async Task<IReadOnlyList<UpcomingStatsRow>> GetUpcomingStatsAsync(int days)
+        {
+            var start = DateTime.UtcNow.Date;
+            var end = start.AddDays(days);
+
+            var query = await _context.FlightSchedules
+                .Where(fs => fs.ScheduledDepartureUtc >= start &&
+                             fs.ScheduledDepartureUtc < end)
+                .GroupBy(fs => fs.ScheduledDepartureUtc.Date)
+                .Select(g => new UpcomingStatsRow
+                {
+                    Date = g.Key,
+                    Flights = g.Count()
+                })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
+
+            return query.AsReadOnly();
         }
     }
 }

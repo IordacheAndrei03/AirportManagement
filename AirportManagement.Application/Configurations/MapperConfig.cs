@@ -1,4 +1,5 @@
-﻿using AirportManagement.Application.Dtos.Flights;
+﻿using AirportManagement.Application.Dtos;
+using AirportManagement.Application.Dtos.Flights;
 using AirportManagement.Application.Dtos.FlightSchedulesDtos;
 using AirportManagement.Domain.Entities;
 using AutoMapper;
@@ -67,6 +68,8 @@ namespace AirportManagement.Application.Configurations
                 opt => opt.MapFrom(src => src.AssignedAircraft.TailNumber))
             .ForMember(dest => dest.Status,
                 opt => opt.MapFrom(src => src.FlightStatus.Status));
+
+            CreateMap<UpcomingStatsRow, UpcomingSchedulesDto>();
         }
     }
     

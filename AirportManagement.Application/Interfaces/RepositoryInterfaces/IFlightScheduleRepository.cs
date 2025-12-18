@@ -1,4 +1,5 @@
-﻿using AirportManagement.Domain.Entities;
+﻿using AirportManagement.Application.Dtos;
+using AirportManagement.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,5 +27,7 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
             int? ignoreScheduleId = null);
 
         Task<bool> AnyByFlightIdAsync(int flightId);
+
+        Task<IReadOnlyList<UpcomingStatsRow>> GetUpcomingStatsAsync(int days);
     }
 }

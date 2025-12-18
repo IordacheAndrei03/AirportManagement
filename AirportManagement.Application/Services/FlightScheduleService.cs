@@ -37,6 +37,26 @@ namespace AirportManagement.Application.Services
 
             return ResultObject<FlightScheduleDetailsDto>.Success(flightScheduleDto);
         }
+
+        public async Task<ResultObject<IReadOnlyList<UpcomingSchedulesDto>>> GetUpcomingStatsAsync(int days)
+        {
+            if (days <= 0)
+            {
+                throw new BadRequestException("Number of days must be positive");
+            }
+
+            var rows = await _unitOfWork.FlightScheduleRepository.GetUpcomingStatsAsync(days);
+
+            if (rows == null || rows.Count == 0)
+            {
+                return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.NotFound(
+                    $"No upcoming flights found for the {days} days.");
+            }
+
+            var result = _mapper.Map<IReadOnlyList<UpcomingSchedulesDto>>(rows);
+
+            return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.Success(result);
+        }
     }
 }
 
