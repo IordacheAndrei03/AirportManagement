@@ -1,4 +1,4 @@
-﻿using AirportManagement.Application.Dtos;
+﻿using AirportManagement.Application.Dtos.Flights;
 using AirportManagement.Application.Enums;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using AirportManagement.Domain.Entities;
@@ -18,7 +18,9 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<FlightDetailsDto>> GetById(int id)
+        public async Task<ActionResult<FlightDetailsDto>> GetById(
+            int id
+            )
         {
 
             var result = await _flightService.GetByIdAsync(id);
@@ -42,7 +44,8 @@ namespace AirportManagement.Api.Controllers
             [FromQuery] string destination,
             [FromQuery] DateOnly date,
             [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 20)
+            [FromQuery] int pageSize = 20
+            )
         {
             var result = await _flightService.SearchByRouteAndDateAsync(
                 origin,
@@ -61,6 +64,97 @@ namespace AirportManagement.Api.Controllers
                 }),
                 _ => Problem(statusCode: 500, title: "Unexpected error")
             };
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Create(
+           [FromBody] FlightCreateDto dto
+            )
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            try
+            {
+                var id = await _flightService.CreateFlightAsync(dto);
+
+                return CreatedAtAction(
+                    nameof(GetById), 
+                    new { id },
+                    null);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ValidationProblemDetails
+                {
+                    Title = "Invalid flight",
+                    Detail = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Update(
+            int id,
+            [FromBody] FlightCreateDto dto
+            )
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            try
+            {
+                await _flightService.UpdateAsync(id, dto);
+                return Ok(); 
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Flight not found",
+                    Detail = ex.Message
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ValidationProblemDetails
+                {
+                    Title = "Invalid flight",
+                    Detail = ex.Message
+                });
+            }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(
+            int id
+            )
+        {
+            try
+            {
+                await _flightService.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Flight not found",
+                    Detail = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new ProblemDetails
+                {
+                    Title = "Cannot delete flight",
+                    Detail = ex.Message
+                });
+            }
         }
 
     }

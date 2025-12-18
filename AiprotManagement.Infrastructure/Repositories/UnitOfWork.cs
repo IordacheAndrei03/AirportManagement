@@ -19,6 +19,9 @@ namespace AirportManagement.Infrastructure.Repositories
         private IFlightScheduleRepository? _flightScheduleRepository;
         private ITicketRepository? _ticketRepository;
         private IBookingRepository? _bookingRepository;
+        private IAirlineRepository? _airlineRepository;
+        private IAirportRepository? _airportRepository;
+        private IAircraftRepository? _aircraftRepository;
 
         public UnitOfWork(AirportManagementContext context,IMapper mapper)
         {
@@ -37,6 +40,15 @@ namespace AirportManagement.Infrastructure.Repositories
 
         public IBookingRepository BookingRepository =>
             _bookingRepository ??= new BookingRepository(_context,_mapper);
+
+        public IAirlineRepository AirlineRepository =>
+            _airlineRepository ??= new AirlineRepository(_context,_mapper);
+
+        public IAirportRepository AirportRepository =>
+            _airportRepository ??= new AirportRepository(_context,_mapper);
+
+        public IAircraftRepository AircraftRepository =>
+            _aircraftRepository ??= new AircraftRepository(_context,_mapper);
 
         public async Task<int> SaveChangesAsync()
         {

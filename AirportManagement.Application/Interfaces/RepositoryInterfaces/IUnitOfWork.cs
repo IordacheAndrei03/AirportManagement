@@ -15,6 +15,12 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
         ITicketRepository TicketRepository { get; }
 
         IBookingRepository BookingRepository { get; }
+        
+        IAirlineRepository AirlineRepository { get; }
+
+        IAirportRepository AirportRepository { get; }
+
+        IAircraftRepository AircraftRepository { get; }
 
         Task<int> SaveChangesAsync();
     }

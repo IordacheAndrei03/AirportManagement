@@ -99,5 +99,10 @@ namespace AirportManagement.Infrastructure.Repositories
                     fs.ScheduleArrivalUtc > fromUtc);
         }
 
+        public async Task<bool> AnyByFlightIdAsync(int flightId, CancellationToken cancellationToken = default)
+        {
+            return await _context.FlightSchedules
+                .AnyAsync(fs => fs.FlightId == flightId, cancellationToken);
+        }
     }
 }

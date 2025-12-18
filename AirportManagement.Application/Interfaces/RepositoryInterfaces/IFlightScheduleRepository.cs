@@ -25,6 +25,6 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
             DateTime toUtc,
             int? ignoreScheduleId = null);
 
-
+        Task<bool> AnyByFlightIdAsync(int flightId, CancellationToken cancellationToken = default);
     }
 }

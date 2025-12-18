@@ -1,4 +1,4 @@
-﻿using AirportManagement.Application.Dtos;
+﻿using AirportManagement.Application.Dtos.Flights;
 using AirportManagement.Domain.Entities;
 using AutoMapper;
 using System;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace AirportManagement.Application.Configurations
 {
-    public class MapperConfig:Profile
+    public class MapperConfig : Profile
     {
         public MapperConfig()
         {
@@ -36,9 +36,18 @@ namespace AirportManagement.Application.Configurations
                 .ForMember(dest => dest.ScheduledDepartureUtc,
                     opt => opt.MapFrom(src => src.ScheduledDepartureUtc))
                 .ForMember(dest => dest.ScheduledArrivalUtc,
-                    opt => opt.MapFrom(src => src.ScheduleArrivalUtc))
-                .ForMember(dest => dest.GateCode,
-                    opt => opt.MapFrom(src => src.Gate.Airport.Iatacode + ":" + src.Gate.Code));
+                    opt => opt.MapFrom(src => src.ScheduleArrivalUtc));
+
+            CreateMap<FlightCreateDto, Flight>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore()) 
+                .ForMember(dest => dest.AirlineId, opt => opt.Ignore())
+                .ForMember(dest => dest.OriginAirport, opt => opt.Ignore())
+                .ForMember(dest => dest.DestinationAirport, opt => opt.Ignore())
+                .ForMember(dest => dest.DefaultAircraftId, opt => opt.Ignore())
+                .ForMember(dest => dest.FlightNumber,
+                    opt => opt.MapFrom(src => src.FlightNumber))
+                .ForMember(dest => dest.IsActive,
+                    opt => opt.MapFrom(src => src.IsActive));
         }
     }
 }
