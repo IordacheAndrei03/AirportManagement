@@ -65,7 +65,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(
+        public async Task<ActionResult<int>> Create(
            [FromBody] FlightCreateDto dto)
         {
             if (!ModelState.IsValid)
@@ -78,7 +78,7 @@ namespace AirportManagement.Api.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id },
-                null);
+                id);
         }
 
         [HttpPut("{id:int}")]
@@ -95,8 +95,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete(
-            int id)
+        public async Task<ActionResult> Delete(int id)
         {
             await _flightService.DeleteAsync(id);
             return NoContent();

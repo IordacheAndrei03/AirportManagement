@@ -22,6 +22,8 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
 
         IAircraftRepository AircraftRepository { get; }
 
+        IFlightStatusRepository FlightStatusRepository { get; }
+
         Task<int> SaveChangesAsync();
     }
 }

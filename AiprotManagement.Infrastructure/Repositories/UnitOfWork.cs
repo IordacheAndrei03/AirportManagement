@@ -22,7 +22,7 @@ namespace AirportManagement.Infrastructure.Repositories
         private IAirlineRepository? _airlineRepository;
         private IAirportRepository? _airportRepository;
         private IAircraftRepository? _aircraftRepository;
-
+        private IFlightStatusRepository? _flightStatusRepository;
         public UnitOfWork(AirportManagementContext context,IMapper mapper)
         {
             _context = context;
@@ -49,6 +49,9 @@ namespace AirportManagement.Infrastructure.Repositories
 
         public IAircraftRepository AircraftRepository =>
             _aircraftRepository ??= new AircraftRepository(_context,_mapper);
+
+        public IFlightStatusRepository FlightStatusRepository =>
+            _flightStatusRepository ??= new FlightStatusRepository(_context,_mapper);
 
         public async Task<int> SaveChangesAsync()
         {

@@ -83,8 +83,8 @@ namespace AirportManagement.Infrastructure.Repositories
 
         public async Task<bool> HasGateOverlapAsync(
             int gateId,
-            DateTime fromUtc,
-            DateTime toUtc,
+            DateTime departureUtc,
+            DateTime arrivalUtc,
             int? ignoreScheduleId = null)
         {
             var query = _context.FlightSchedules
@@ -96,8 +96,8 @@ namespace AirportManagement.Infrastructure.Repositories
             }
 
             return await query.AnyAsync(fs =>
-                    fs.ScheduledDepartureUtc < toUtc &&
-                    fs.ScheduleArrivalUtc > fromUtc);
+                    fs.ScheduledDepartureUtc < departureUtc &&
+                    fs.ScheduleArrivalUtc > arrivalUtc);
         }
 
         public async Task<bool> AnyByFlightIdAsync(int flightId)

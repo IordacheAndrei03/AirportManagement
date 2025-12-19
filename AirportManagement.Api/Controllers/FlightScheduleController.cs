@@ -53,5 +53,21 @@ namespace AirportManagement.Api.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<ActionResult> Create(
+    [FromBody] FlightScheduleCreateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            var id = await _scheduleService.CreateAsync(dto);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id },
+                id);
+        }
     }
 }

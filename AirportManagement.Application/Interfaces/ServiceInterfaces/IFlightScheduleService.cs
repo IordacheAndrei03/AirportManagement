@@ -13,5 +13,7 @@ namespace AirportManagement.Application.Interfaces.ServiceInterfaces
         Task<ResultObject<FlightScheduleDetailsDto>> GetByIdAsync(int id);
 
         Task<ResultObject<IReadOnlyList<UpcomingSchedulesDto>>> GetUpcomingStatsAsync(int days);
+
+        Task<int> CreateAsync(FlightScheduleCreateDto dto);
     }
 }

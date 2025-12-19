@@ -1,8 +1,10 @@
 ﻿using AirportManagement.Application.Dtos.Flights;
 using AirportManagement.Application.Dtos.FlightSchedulesDtos;
+using AirportManagement.Application.Enums;
 using AirportManagement.Application.Exceptions;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
+using AirportManagement.Domain.Entities;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
@@ -56,6 +58,47 @@ namespace AirportManagement.Application.Services
             var result = _mapper.Map<IReadOnlyList<UpcomingSchedulesDto>>(rows);
 
             return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.Success(result);
+        }
+
+        public async Task<int> CreateAsync(FlightScheduleCreateDto dto)
+        {
+            if (dto.ScheduledArrivalUtc <= dto.ScheduledDepartureUtc)
+            {
+                throw new BadRequestException("Arrival must be after departure.");
+            }
+
+            var hasOverlap = await _unitOfWork.FlightScheduleRepository.HasGateOverlapAsync(
+                dto.GateId,
+                dto.ScheduledDepartureUtc,
+                dto.ScheduledArrivalUtc,
+                ignoreScheduleId: null);
+
+            if (hasOverlap)
+            {
+                throw new ConflictException("Gate is already used for this time interval.");
+            }
+
+            var plannedStatusId = await _unitOfWork.FlightStatusRepository.GetStatusIdByNameAsync(FlightScheduleStatus.Scheduled);
+
+            if (plannedStatusId == 0)
+            {
+                throw new NotFoundException("Flight status", plannedStatusId);
+            }
+
+            var entity = new FlightSchedule
+            {
+                FlightId = dto.FlightId,
+                ScheduledDepartureUtc = dto.ScheduledDepartureUtc,
+                ScheduleArrivalUtc = dto.ScheduledArrivalUtc,
+                GateId = dto.GateId,
+                AssignedAircraftId = dto.AssignedAircraftId,
+                FlightStatusId = plannedStatusId
+            };
+
+            await _unitOfWork.FlightScheduleRepository.AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
+
+            return entity.Id;
         }
     }
 }

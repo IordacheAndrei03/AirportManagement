@@ -97,7 +97,6 @@ namespace AirportManagement.Infrastructure.Repositories
             _dbSet.Update(_mapper.Map<TEf>(entity));
         }
 
-
         public async Task<bool> DeleteByIdAsync(int id)
         {
             var efEntity = await _dbSet.FindAsync(id);
