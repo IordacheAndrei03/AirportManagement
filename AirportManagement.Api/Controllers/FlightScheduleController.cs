@@ -55,7 +55,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpPost]
         public async Task<ActionResult> Create(
-    [FromBody] FlightScheduleCreateDto dto)
+             [FromBody] FlightScheduleCreateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -69,5 +69,25 @@ namespace AirportManagement.Api.Controllers
                 new { id },
                 id);
         }
+
+        [HttpPost("import")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ScheduleImportResultDto>> Import(
+        [FromForm] ScheduleImportRequest request,
+        CancellationToken cancellationToken)
+        {
+            var file = request.File;
+            var result = await _scheduleService.ImportAsync(file, cancellationToken);
+
+            if (result.Errors.Count == 0)
+            {
+                // toate create/update cu succes
+                return StatusCode(StatusCodes.Status201Created, result);
+            }
+
+            // mixed: unele reușite, unele cu erori
+            return StatusCode(StatusCodes.Status207MultiStatus, result);
+        }
     }
 }
+

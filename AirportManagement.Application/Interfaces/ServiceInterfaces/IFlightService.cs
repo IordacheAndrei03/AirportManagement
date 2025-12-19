@@ -1,5 +1,7 @@
 ﻿using AirportManagement.Application.Dtos.Flights;
+using AirportManagement.Application.Dtos.FlightSchedulesDtos;
 using AirportManagement.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;

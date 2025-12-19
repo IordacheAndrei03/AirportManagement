@@ -145,5 +145,19 @@ namespace AirportManagement.Infrastructure.Repositories
 
             return query.AsReadOnly();
         }
+
+        public async Task<DomainFlightSchedule?> FindByFlightAndDepartureAsync(
+    int flightId,
+    DateTime departureUtc,
+    CancellationToken ct = default)
+        {
+            var efEntity = await _context.FlightSchedules
+                .FirstOrDefaultAsync(fs =>
+                    fs.FlightId == flightId &&
+                    fs.ScheduledDepartureUtc == departureUtc,
+                    ct);
+
+            return _mapper.Map<DomainFlightSchedule?>(efEntity);
+        }
     }
 }

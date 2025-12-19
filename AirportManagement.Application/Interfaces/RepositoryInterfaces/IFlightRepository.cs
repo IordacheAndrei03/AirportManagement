@@ -26,5 +26,12 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
             string flightNumber,
             int originAirportId,
             int destinationAirportId);
+
+        Task<DomainFlight?> FindByAirlineNumberAndRouteAsync(
+            int airlineId,
+            string flightNumber,
+            int originAirportId,
+            int destinationAirportId,
+            CancellationToken cancellationToken = default);
     }
 }

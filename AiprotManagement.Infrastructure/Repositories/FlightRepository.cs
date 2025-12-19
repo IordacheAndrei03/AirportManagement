@@ -73,6 +73,30 @@ namespace AirportManagement.Infrastructure.Repositories
 
             return _mapper.Map<DomainFlight?>(efEntity);
         }
+
+        public async Task<DomainFlight?> FindByAirlineNumberAndRouteAsync(
+        int airlineId,
+        string flightNumber,
+        int originAirportId,
+        int destinationAirportId,
+        CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(flightNumber))
+                return null;
+
+            var normalizedFlightNumber = flightNumber.Trim().ToUpperInvariant();
+
+            // comparăm normalized (ToUpper) pentru a evita probleme legate de case
+            var efEntity = await _context.Flights
+                .AsNoTracking()
+                .FirstOrDefaultAsync(f =>
+                    f.AirlineId == airlineId
+                    && f.OriginAirport == originAirportId
+                    && f.DestinationAirport == destinationAirportId
+                    && EF.Functions.Like(f.FlightNumber.ToUpper(), normalizedFlightNumber),
+                    cancellationToken);
+            return _mapper.Map<DomainFlight?>(efEntity);
+        }
     }
 }
 

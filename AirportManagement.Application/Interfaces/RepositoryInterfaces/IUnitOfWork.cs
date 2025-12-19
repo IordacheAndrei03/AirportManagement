@@ -24,6 +24,8 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
 
         IFlightStatusRepository FlightStatusRepository { get; }
 
+        IGateRepository GateRepository { get; }
+
         Task<int> SaveChangesAsync();
     }
 }

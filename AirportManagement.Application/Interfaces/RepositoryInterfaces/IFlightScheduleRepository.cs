@@ -29,5 +29,10 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
         Task<bool> AnyByFlightIdAsync(int flightId);
 
         Task<IReadOnlyList<UpcomingStatsRow>> GetUpcomingStatsAsync(int days);
+
+        Task<DomainFlightSchedule?> FindByFlightAndDepartureAsync(
+    int flightId,
+    DateTime departureUtc,
+    CancellationToken ct = default);
     }
 }

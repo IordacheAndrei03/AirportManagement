@@ -1,3 +1,4 @@
+using AirportManagement.Api.Swagger;
 using AirportManagement.Application.Configurations;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
@@ -39,12 +40,13 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 
-    // Aici îi explic?m lui Swagger ce e DateOnly
     c.MapType<DateOnly>(() => new OpenApiSchema
     {
         Type = "string",
         Format = "date"
     });
+
+    c.OperationFilter<FileUploadOperationFilter>();
 });
 
 var app = builder.Build();
