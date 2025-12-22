@@ -70,6 +70,8 @@ namespace AirportManagement.Application.Configurations
                 opt => opt.MapFrom(src => src.FlightStatus.Status));
 
             CreateMap<UpcomingStatsRow, UpcomingSchedulesDto>();
+
+            CreateMap<ApiUserDto,ApiUser>().ReverseMap();
         }
     }
     
