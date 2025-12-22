@@ -34,7 +34,7 @@ namespace AirportManagement.Application.Services
 
             if (entity is null)
             {
-                throw new NotFoundException("FlightSchedule",id);
+                throw new NotFoundException("FlightSchedule", id);
             }
 
             var flightScheduleDto = _mapper.Map<FlightScheduleDetailsDto>(entity);
@@ -71,9 +71,7 @@ namespace AirportManagement.Application.Services
 
             var hasOverlap = await _unitOfWork.FlightScheduleRepository.HasGateOverlapAsync(
                 dto.GateId,
-                dto.ScheduledDepartureUtc,
-                dto.ScheduledArrivalUtc,
-                ignoreScheduleId: null);
+                dto.ScheduledDepartureUtc);
 
             if (hasOverlap)
             {
@@ -114,6 +112,7 @@ namespace AirportManagement.Application.Services
                 throw new ArgumentException("File is too large. Max 2 MB.");
 
             List<ScheduleImportRowDto>? rows;
+
             using (var stream = file.OpenReadStream())
             {
                 rows = await JsonSerializer.DeserializeAsync<List<ScheduleImportRowDto>>(
@@ -138,6 +137,7 @@ namespace AirportManagement.Application.Services
             var flightRepo = _unitOfWork.FlightRepository;
 
             var rowIndex = 0;
+
             foreach (var row in rows)
             {
                 rowIndex++;
@@ -148,17 +148,16 @@ namespace AirportManagement.Application.Services
                         throw new Exception("Arrival must be after departure.");
 
                     var airline = await airlineRepo.GetByIataCodeAsync(row.AirlineIata)
-                        ?? throw new BadRequestException($"Unknown airline IATA code '{row.AirlineIata}.");
-
+                        ?? throw new BadRequestException($"Unknown airline IATA code '{row.AirlineIata}'.");
 
                     var originAirport = await airportRepo.GetByIataCodeAsync(row.OriginIata)
                         ?? throw new BadRequestException($"Unknown origin airport IATA code '{row.OriginIata}'.");
 
                     var destAirport = await airportRepo.GetByIataCodeAsync(row.DestinationIata)
-                ?? throw new BadRequestException($"Unknown destination airport IATA code '{row.DestinationIata}'.");
+                        ?? throw new BadRequestException($"Unknown destination airport IATA code '{row.DestinationIata}'.");
 
                     var aircraft = await aircraftRepo.GetByTailNoAsync(row.AssignedAircraftTail)
-                ?? throw new BadRequestException($"Unknown aircraft tail number '{row.AssignedAircraftTail}'.");
+                        ?? throw new BadRequestException($"Unknown aircraft tail number '{row.AssignedAircraftTail}'.");
 
                     var flight = await _unitOfWork.FlightRepository
                         .FindByAirlineNumberAndRouteAsync(airline.Id, row.FlightNumber, originAirport.Id, destAirport.Id, cancellationToken);
@@ -176,26 +175,29 @@ namespace AirportManagement.Application.Services
                         };
 
                         await _unitOfWork.FlightRepository.AddAsync(newFlight);
-                        await _unitOfWork.SaveChangesAsync(); 
+                        await _unitOfWork.SaveChangesAsync();
                         flight = newFlight;
                     }
 
                     var gate = await _unitOfWork.GateRepository
-                        .GetByAirportIdAndCodeAsync(originAirport.Id, row.GateCode, cancellationToken);
+                        .GetByAirportIdAndCodeAsync(originAirport.Id, row.GateCode);
+
+                    if (gate == null)
+                    {
+                        throw new Exception("Gate Does not exist}");
+                    }
+
+                    var existing = await _unitOfWork.FlightScheduleRepository
+                        .FindByFlightAndDepartureAsync(flight.Id, row.ScheduledDepartureUtc, cancellationToken);
 
                     var hasOverlap = await _unitOfWork.FlightScheduleRepository.HasGateOverlapAsync(
-                        gate.Id,
-                        row.ScheduledDepartureUtc,
-                        row.ScheduledArrivalUtc,
-                        ignoreScheduleId: null);
+                       gate.Id,
+                       row.ScheduledDepartureUtc);
 
                     if (hasOverlap)
                     {
                         throw new Exception($"Gate overlap at {row.OriginIata}:{row.GateCode} {row.ScheduledDepartureUtc:O}–{row.ScheduledArrivalUtc:O}");
                     }
-
-                    var existing = await _unitOfWork.FlightScheduleRepository
-                        .FindByFlightAndDepartureAsync(flight.Id, row.ScheduledDepartureUtc, cancellationToken);
 
                     if (existing == null)
                     {
@@ -209,7 +211,7 @@ namespace AirportManagement.Application.Services
                             FlightStatusId = plannedStatusId
                         };
 
-                        await _unitOfWork.FlightScheduleRepository.AddAsync(schedule); 
+                        await _unitOfWork.FlightScheduleRepository.AddAsync(schedule);
                         await _unitOfWork.SaveChangesAsync();
                         result.Created++;
                     }
@@ -220,7 +222,6 @@ namespace AirportManagement.Application.Services
                         existing.AssignedAircraftId = aircraft.Id;
                         existing.FlightStatusId = plannedStatusId;
 
-                        _unitOfWork.FlightScheduleRepository.Update(existing); 
                         await _unitOfWork.SaveChangesAsync();
                         result.Updated++;
                     }

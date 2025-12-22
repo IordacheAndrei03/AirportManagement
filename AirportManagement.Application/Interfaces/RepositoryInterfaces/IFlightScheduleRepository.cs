@@ -22,9 +22,7 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
 
         Task<bool> HasGateOverlapAsync(
             int gateId,
-            DateTime fromUtc,
-            DateTime toUtc,
-            int? ignoreScheduleId = null);
+            DateTime fromUtc);
 
         Task<bool> AnyByFlightIdAsync(int flightId);
 

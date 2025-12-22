@@ -6,8 +6,7 @@ namespace AirportManagement.Application
     {
         public T? Value { get; }
 
-        public ResultObject(ResultStatus status, T? value, string? error)
-            : base(status, error)
+        public ResultObject(ResultStatus status, T? value, string? error) : base(status, error)
         {
             Value = value;
         }

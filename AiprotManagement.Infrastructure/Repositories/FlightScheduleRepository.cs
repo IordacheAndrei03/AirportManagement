@@ -81,23 +81,38 @@ namespace AirportManagement.Infrastructure.Repositories
         }
 
 
-        public async Task<bool> HasGateOverlapAsync(
-            int gateId,
-            DateTime departureUtc,
-            DateTime arrivalUtc,
-            int? ignoreScheduleId = null)
+        //public async Task<bool> HasGateOverlapAsync(
+        //    int gateId,
+        //    DateTime departureUtc,
+        //    DateTime arrivalUtc,
+        //    int? ignoreScheduleId = null)
+        //{
+        //    var query = _context.FlightSchedules
+        //        .Where(fs => fs.GateId == gateId);
+
+        //    if (ignoreScheduleId.HasValue)
+        //    {
+        //        query = query.Where(fs => fs.Id != ignoreScheduleId.Value);
+        //    }
+
+        //    return await query.AnyAsync(fs =>
+        //            fs.ScheduledDepartureUtc < departureUtc &&
+        //            fs.ScheduleArrivalUtc > arrivalUtc);
+        //}
+
+        public async Task<bool> HasGateOverlapAsync(int gateId, DateTime scheduledDepartureUtc)
         {
-            var query = _context.FlightSchedules
-                .Where(fs => fs.GateId == gateId);
+            var bufferMinutes = 30;
 
-            if (ignoreScheduleId.HasValue)
-            {
-                query = query.Where(fs => fs.Id != ignoreScheduleId.Value);
-            }
+            var windowStart = scheduledDepartureUtc.AddMinutes(-bufferMinutes);
+            var windowEnd = scheduledDepartureUtc.AddMinutes(bufferMinutes);
 
-            return await query.AnyAsync(fs =>
-                    fs.ScheduledDepartureUtc < departureUtc &&
-                    fs.ScheduleArrivalUtc > arrivalUtc);
+            var hasOverlap = await _context.FlightSchedules
+                .AsNoTracking()
+                .Where(fs => fs.GateId == gateId)
+                .AnyAsync(fs => windowStart < fs.ScheduledDepartureUtc.AddMinutes(bufferMinutes) && windowEnd > fs.ScheduledDepartureUtc.AddMinutes(-bufferMinutes));
+
+            return hasOverlap;
         }
 
         public async Task<bool> AnyByFlightIdAsync(int flightId)
@@ -147,9 +162,9 @@ namespace AirportManagement.Infrastructure.Repositories
         }
 
         public async Task<DomainFlightSchedule?> FindByFlightAndDepartureAsync(
-    int flightId,
-    DateTime departureUtc,
-    CancellationToken ct = default)
+             int flightId,
+             DateTime departureUtc,
+             CancellationToken ct = default)
         {
             var efEntity = await _context.FlightSchedules
                 .FirstOrDefaultAsync(fs =>

@@ -81,11 +81,9 @@ namespace AirportManagement.Api.Controllers
 
             if (result.Errors.Count == 0)
             {
-                // toate create/update cu succes
                 return StatusCode(StatusCodes.Status201Created, result);
             }
 
-            // mixed: unele reușite, unele cu erori
             return StatusCode(StatusCodes.Status207MultiStatus, result);
         }
     }

@@ -18,17 +18,19 @@ namespace AirportManagement.Infrastructure.Repositories
         private readonly IMapper _mapper;
         public GateRepository(AirportManagementContext context, IMapper mapper) : base(context, mapper)
         {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _mapper = mapper;
         }
 
-        public async Task<DomainGate?> GetByAirportIdAndCodeAsync(int airportId, string gateCode, CancellationToken cancellationToken = default)
+        public async Task<DomainGate?> GetByAirportIdAndCodeAsync(int airportId, string gateCode)
         {
             var efEntity = await _context.Gates
                 .AsNoTracking()
                 .FirstOrDefaultAsync(g =>
                     g.AirportId == airportId &&
-                    g.Code == gateCode,
-                    cancellationToken);
+                    g.Code == gateCode);
             return _mapper.Map<DomainGate?>(efEntity);
+
         }
     }
 }
