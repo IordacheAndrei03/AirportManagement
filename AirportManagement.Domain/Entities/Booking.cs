@@ -24,7 +24,6 @@ namespace AirportManagement.Domain.Entities
 
         public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 
-        public virtual User User { get; set; } = null!;
     }
 
 }

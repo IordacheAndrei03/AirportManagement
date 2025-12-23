@@ -1,5 +1,6 @@
 ﻿using AirportManagement.Application.Dtos.BookingDtos;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AirportManagement.Api.Controllers
@@ -16,12 +17,13 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Staff")]
         public async Task<ActionResult<BookingCreateResponseDto>> Create(
             [FromBody] BookingCreateRequestDto dto)
         {
             if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
-            var result = await _bookingService.CreateAsync(dto);
+            var result = await _bookingService.CreateAsync();
             return CreatedAtAction(nameof(GetByCode), new { code = result.ConfirmationCode }, result);
         }
 

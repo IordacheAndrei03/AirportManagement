@@ -84,10 +84,11 @@ namespace AirportManagement.Application.Services
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub,user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email,user.Email),
-                new Claim("uid",user.Id)
+               new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+               new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+               new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+               new Claim(ClaimTypes.NameIdentifier, user.Id),
+               new Claim("uid", user.Id)
             }
             .Union(userClaims).Union(roleClaims);
 

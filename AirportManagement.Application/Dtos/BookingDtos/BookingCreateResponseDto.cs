@@ -10,6 +10,6 @@ namespace AirportManagement.Application.Dtos.BookingDtos
     {
         public string ConfirmationCode { get; set; } = string.Empty;
         public string Status { get; set; } = "Active";
-        public decimal TotalAmount { get; set; }
+        public int Quantity { get; set; } = 0;
     }
 }

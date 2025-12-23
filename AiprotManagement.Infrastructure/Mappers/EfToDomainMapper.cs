@@ -42,7 +42,7 @@ namespace AirportManagement.Infrastructure.Mappers
             CreateMap<EfFlight, DomainFlight>().ReverseMap();
             CreateMap<EfAircraft, DomainAircraft>().ReverseMap();
             CreateMap<EfAirport, DomainAirport>().ReverseMap();
-            CreateMap<EfBooking, DomainBooking>().ReverseMap();
+            //CreateMap<EfBooking, DomainBooking>().ReverseMap();
             CreateMap<EfTicket, DomainTicket>().ReverseMap();
             CreateMap<EfAirline, DomainAirline>().ReverseMap();
             CreateMap<EfFlightStatus, DomainFlightStatus>().ReverseMap();
@@ -50,6 +50,10 @@ namespace AirportManagement.Infrastructure.Mappers
             CreateMap<EfGate, DomainGate>().ReverseMap();
             CreateMap<EfBookingStatus, DomainBookingStatus>().ReverseMap();
             CreateMap<EfUser, DomainUser>().ReverseMap();
+
+            CreateMap<EfBooking, DomainBooking>()
+    .ForMember(dest => dest.BookingStatus, opt => opt.Ignore())
+    .ForMember(dest => dest.Tickets, opt => opt.Ignore()).ReverseMap();
         }
     }
 }
