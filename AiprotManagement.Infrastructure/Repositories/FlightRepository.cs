@@ -1,6 +1,6 @@
 ﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Infrastructure.ScaffoldDb.Entities;
-using AirprotManagement.Infrastructure.ScaffoldDb.Context;
+using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;

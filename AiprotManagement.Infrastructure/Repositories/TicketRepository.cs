@@ -1,6 +1,6 @@
 ﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Infrastructure.ScaffoldDb.Entities;
-using AirprotManagement.Infrastructure.ScaffoldDb.Context;
+using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -40,6 +40,15 @@ namespace AirportManagement.Infrastructure.Repositories
                 .ToListAsync();
 
             return _mapper.Map<IReadOnlyList<DomainTicket>>(efEntity);
+        }
+
+        public Task<DomainTicket?> GetByBookingIdAsync(int bookingId)
+        {
+            var efEntity = _context.Tickets
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.BookingId == bookingId);
+
+            return _mapper.Map<Task<DomainTicket?>>(efEntity);
         }
     }
 }

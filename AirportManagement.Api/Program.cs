@@ -1,4 +1,5 @@
 using AirportManagement.Api.Swagger;
+using AirportManagement.Api.WeServices;
 using AirportManagement.Application.Configurations;
 using AirportManagement.Application.Interfaces;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
@@ -9,7 +10,7 @@ using AirportManagement.Domain.Entities;
 using AirportManagement.Infrastructure.IdentityDbContext;
 using AirportManagement.Infrastructure.Mappers;
 using AirportManagement.Infrastructure.Repositories;
-using AirprotManagement.Infrastructure.ScaffoldDb.Context;
+using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IFlightScheduleService, FlightScheduleService>();
 builder.Services.AddScoped<IAuthManagerService, AuthManagerService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddAuthentication(options =>
 {

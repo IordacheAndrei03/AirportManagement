@@ -20,6 +20,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "Client,Staff")]
         public async Task<ActionResult<FlightScheduleDetailsDto>> GetById(int id)
         {
             var result = await _scheduleService.GetByIdAsync(id);
@@ -37,6 +38,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpGet("upcoming-stats/{days:int}")]
+        [Authorize(Roles = "Client,Staff")]
         public async Task<ActionResult<IReadOnlyList<UpcomingSchedulesDto>>> GetUpcomingStats([FromRoute] int days = 7)
         {
             var result = await _scheduleService.GetUpcomingStatsAsync(days);
@@ -51,10 +53,10 @@ namespace AirportManagement.Api.Controllers
                 }),
                 _ => Problem(statusCode: 500, title: "Unexpected error")
             };
-
         }
 
         [HttpPost]
+        [Authorize(Roles = "Staff")]
         public async Task<ActionResult> Create(
              [FromBody] FlightScheduleCreateDto dto)
         {

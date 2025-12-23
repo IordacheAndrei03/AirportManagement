@@ -1,7 +1,7 @@
 ﻿using AirportManagement.Application.Dtos;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Infrastructure.ScaffoldDb.Entities;
-using AirprotManagement.Infrastructure.ScaffoldDb.Context;
+using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,24 +25,6 @@ namespace AirportManagement.Infrastructure.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper;
         }
-
-        //public async Task<DomainFlightSchedule?> GetByIdWithDetailsAsync(int id)
-        //{
-        //    var efEntity = await _context.FlightSchedules
-        //        .Include(fs => fs.Flight)
-        //            .ThenInclude(f => f.Airline)
-        //        .Include(fs => fs.Flight)
-        //            .ThenInclude(f => f.OriginAirportNavigation)
-        //        .Include(fs => fs.Flight)
-        //            .ThenInclude(f => f.DestinationAirportNavigation)
-        //        .Include(fs => fs.Gate)
-        //        .Include(fs => fs.AssignedAircraft)
-        //        .Include(fs => fs.FlightStatus)
-        //        .AsNoTracking()
-        //        .FirstOrDefaultAsync(fs => fs.Id == id);
-            
-        //    return _mapper.Map<DomainFlightSchedule?>(efEntity);
-        //}
 
         public async Task<IReadOnlyList<DomainFlightSchedule>> SearchUpcomingByRouteAndDateAsync(
             string originIata,
@@ -79,26 +61,6 @@ namespace AirportManagement.Infrastructure.Repositories
 
             return domainResults;
         }
-
-
-        //public async Task<bool> HasGateOverlapAsync(
-        //    int gateId,
-        //    DateTime departureUtc,
-        //    DateTime arrivalUtc,
-        //    int? ignoreScheduleId = null)
-        //{
-        //    var query = _context.FlightSchedules
-        //        .Where(fs => fs.GateId == gateId);
-
-        //    if (ignoreScheduleId.HasValue)
-        //    {
-        //        query = query.Where(fs => fs.Id != ignoreScheduleId.Value);
-        //    }
-
-        //    return await query.AnyAsync(fs =>
-        //            fs.ScheduledDepartureUtc < departureUtc &&
-        //            fs.ScheduleArrivalUtc > arrivalUtc);
-        //}
 
         public async Task<bool> HasGateOverlapAsync(int gateId, DateTime scheduledDepartureUtc)
         {
@@ -173,6 +135,30 @@ namespace AirportManagement.Infrastructure.Repositories
                     ct);
 
             return _mapper.Map<DomainFlightSchedule?>(efEntity);
+        }
+
+        public async Task<int> GetSeatCapacityAsync(int flightScheduleId)
+        {
+            var capacity = await _context.FlightSchedules
+                .Where(fs => fs.Id == flightScheduleId)
+                .Select(fs => fs.AssignedAircraft.SeatCapacity)
+                .FirstOrDefaultAsync();
+
+            return capacity; 
+        }
+
+        public async Task<int> GetActiveBookedSeatsAsync(int flightScheduleId)
+        {
+            var activeBookedSeats = await _context.Tickets
+                .AsNoTracking()
+                .Where(t =>
+                    t.FlightScheduleId == flightScheduleId &&
+                    t.Booking != null &&
+                    t.Booking.BookingStatus != null &&
+                    t.Booking.BookingStatus.Status == "Active")
+                .SumAsync(t => (int?)t.Booking!.Quantity);
+
+            return activeBookedSeats ?? 0;
         }
     }
 }

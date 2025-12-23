@@ -12,5 +12,7 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
         Task<int> GetSoldSeatsCountAsync(int flightScheduleId);
 
         Task<IReadOnlyList<DomainTicket>> GetByFlightScheduleAsync(int flightScheduleId);
+
+        Task<Ticket?> GetByBookingIdAsync(int bookingId);
     }
 }

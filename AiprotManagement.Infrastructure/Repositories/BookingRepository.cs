@@ -1,6 +1,6 @@
 ﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Infrastructure.ScaffoldDb.Entities;
-using AirprotManagement.Infrastructure.ScaffoldDb.Context;
+using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using DomainBooking = AirportManagement.Domain.Entities.Booking;
 using EfBooking = AirportManagement.Infrastructure.ScaffoldDb.Entities.Booking;
+using DomainBookingStatus = AirportManagement.Domain.Entities.BookingStatus;
+using EfBookingStatus = AirportManagement.Infrastructure.ScaffoldDb.Entities.BookingStatus;
 
 namespace AirportManagement.Infrastructure.Repositories
 {
@@ -27,17 +29,35 @@ namespace AirportManagement.Infrastructure.Repositories
 
         public async Task<DomainBooking?> GetByConfirmationCodeAsync(string confirmationCode)
         {
-           var EfEntity = await _context.Bookings
-                .FirstOrDefaultAsync(b => b.ConfirmationCode == confirmationCode);
-           return _mapper.Map<DomainBooking?>(EfEntity);
+            var efEntity =  await _context.Bookings
+              .Include(b => b.BookingStatus)
+              .AsNoTracking()
+              .FirstOrDefaultAsync(b => b.ConfirmationCode == confirmationCode);
+
+            return _mapper.Map<DomainBooking>(efEntity);
         }
 
-        public async Task<DomainBooking?> GetWithTicketsByConfirmationCodeAsync(string confirmationCode)
+        public Task<bool> HasActiveBookingsForTicketAsync(int ticketId)
         {
-           var efEntity =  _context.Bookings
-                .Include(b => b.Tickets)
-                .FirstOrDefaultAsync(b => b.ConfirmationCode == confirmationCode);
-              return _mapper.Map<DomainBooking?>(efEntity);
+            return _context.Tickets
+                .AsNoTracking()
+                .AnyAsync(t =>
+                    t.Id == ticketId &&
+                    t.Booking != null &&
+                    t.Booking.BookingStatus != null &&
+                    t.Booking.BookingStatus.Status == "Active");
+        }
+
+        public async Task<DomainBookingStatus?> GetByStatusAsync(string status)
+        {
+            if (string.IsNullOrWhiteSpace(status))
+                throw new ArgumentException("Status cannot be null or empty.", nameof(status));
+
+            var efEntity = await _context.BookingStatuses
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Status == status);
+
+            return _mapper.Map<DomainBookingStatus>(efEntity);
         }
     }
 }

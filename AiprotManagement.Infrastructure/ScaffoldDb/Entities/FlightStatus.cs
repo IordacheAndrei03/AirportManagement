@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AirportManagement.Infrastructure.ScaffoldDb.Entities;
+using System;
 using System.Collections.Generic;
 
 namespace AirportManagement.Infrastructure.ScaffoldDb.Entities;

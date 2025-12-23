@@ -1,5 +1,5 @@
 ﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
-using AirprotManagement.Infrastructure.ScaffoldDb.Context;
+using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
