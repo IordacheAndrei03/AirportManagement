@@ -56,7 +56,15 @@ namespace AirportManagement.Application.Services
 
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, "Staff");
+                var role = userDto.Role?.Trim();
+
+                var allowedRoles = new[] { "Staff", "Client" };
+                if (!allowedRoles.Contains(role))
+                {
+                    role = "Client";
+                }
+
+                await _userManager.AddToRoleAsync(user, role);
             }
 
             return result.Errors;

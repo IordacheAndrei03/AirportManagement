@@ -86,7 +86,6 @@ namespace AirportManagement.Infrastructure.Repositories
 
             var normalizedFlightNumber = flightNumber.Trim().ToUpperInvariant();
 
-            // comparăm normalized (ToUpper) pentru a evita probleme legate de case
             var efEntity = await _context.Flights
                 .AsNoTracking()
                 .FirstOrDefaultAsync(f =>

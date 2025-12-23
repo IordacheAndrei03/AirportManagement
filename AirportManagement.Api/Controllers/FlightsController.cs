@@ -2,6 +2,7 @@
 using AirportManagement.Application.Enums;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using AirportManagement.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AirportManagement.Api.Controllers
@@ -18,6 +19,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "Client,Staff")]
         public async Task<ActionResult<FlightDetailsDto>> GetById(
             int id)
         {
@@ -38,6 +40,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Client,Staff")]
         public async Task<ActionResult<IReadOnlyList<FlightSearchScheduleDto>>> SearchByRouteAndDate(
             [FromQuery] string origin,
             [FromQuery] string destination,
@@ -65,6 +68,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Staff")]
         public async Task<ActionResult<int>> Create(
            [FromBody] FlightCreateDto dto)
         {
@@ -82,6 +86,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Staff")]
         public async Task<ActionResult> Update(
             int id,
             [FromBody] FlightCreateDto dto)
@@ -95,6 +100,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Staff")]
         public async Task<ActionResult> Delete(int id)
         {
             await _flightService.DeleteAsync(id);

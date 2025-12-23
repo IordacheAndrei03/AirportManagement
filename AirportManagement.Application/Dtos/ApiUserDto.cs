@@ -14,5 +14,8 @@ namespace AirportManagement.Application.Dtos
 
         [Required]
         public string LastName { get; set; }
+
+        [Required]
+        public string Role { get; set; }
     }
 }

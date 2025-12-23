@@ -2,6 +2,7 @@
 using AirportManagement.Application.Enums;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using AirportManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -72,6 +73,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpPost("import")]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles = "Staff")]
         public async Task<ActionResult<ScheduleImportResultDto>> Import(
         [FromForm] ScheduleImportRequest request,
         CancellationToken cancellationToken)
