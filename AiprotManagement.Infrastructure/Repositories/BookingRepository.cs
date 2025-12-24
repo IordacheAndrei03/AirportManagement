@@ -59,5 +59,16 @@ namespace AirportManagement.Infrastructure.Repositories
 
             return _mapper.Map<DomainBookingStatus>(efEntity);
         }
+
+        public async Task<DomainBooking?> GetByIdWithStatusAsync(int id)
+        {
+            var efEntity = await _context.Bookings
+                .Include(b => b.BookingStatus)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            return _mapper.Map<DomainBooking>(efEntity);
+
+        }
     }
 }

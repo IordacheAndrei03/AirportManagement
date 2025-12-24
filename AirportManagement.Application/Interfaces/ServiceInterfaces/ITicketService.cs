@@ -10,5 +10,6 @@ namespace AirportManagement.Application.Interfaces.ServiceInterfaces
     public interface ITicketService
     {
         Task<ResultObject<TicketCreateResponseDto>> CreateAsync(TicketCreateRequestDto dto);
+        Task<IReadOnlyList<TicketByFlightScheduleDto>> GetByFlightScheduleAsync(int flightScheduleId);
     }
 }

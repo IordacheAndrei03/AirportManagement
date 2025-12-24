@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AirportManagement.Api.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class TicketsController : ControllerBase
     {
         private readonly ITicketService _ticketService;
@@ -27,6 +29,25 @@ namespace AirportManagement.Api.Controllers
                 ResultStatus.Invalid => BadRequest(result),
                 _ => BadRequest(result)
             };
+        }
+
+        [HttpGet("by-flight/{flightScheduleId:int}")]
+        public async Task<ActionResult<IReadOnlyList<TicketByFlightScheduleDto>>> GetByFlightSchedule(
+    int flightScheduleId)
+        {
+            try
+            {
+                var result = await _ticketService.GetByFlightScheduleAsync(flightScheduleId);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ValidationProblemDetails
+                {
+                    Title = "Invalid request",
+                    Detail = ex.Message
+                });
+            }
         }
     }
 }

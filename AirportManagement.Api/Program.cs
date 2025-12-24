@@ -25,6 +25,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IFlightScheduleService, FlightScheduleService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 builder.Services.AddScoped<IAuthManagerService, AuthManagerService>();
 builder.Services.AddHttpContextAccessor();

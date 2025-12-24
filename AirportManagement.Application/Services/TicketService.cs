@@ -2,6 +2,7 @@
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using AirportManagement.Domain.Entities;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -15,11 +16,13 @@ namespace AirportManagement.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IMapper _mapper;
 
-        public TicketService(IUnitOfWork unitOfWork, ICurrentUserService curentUserService)
+        public TicketService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _currentUserService = curentUserService;
+            _currentUserService = currentUserService;
+            _mapper = mapper;
         }
 
         public async Task<ResultObject<TicketCreateResponseDto>> CreateAsync(TicketCreateRequestDto dto)
@@ -30,7 +33,7 @@ namespace AirportManagement.Application.Services
             if (dto.Taxes < 0)
                 throw new ArgumentException("Taxes must be non-negative.");
 
-            var booking = await _unitOfWork.BookingRepository.GetByIdAsync(dto.BookingId);
+            var booking = await _unitOfWork.BookingRepository.GetByIdWithStatusAsync(dto.BookingId);
             if (booking is null)
                 throw new KeyNotFoundException($"Booking {dto.BookingId} not found.");
 
@@ -40,7 +43,7 @@ namespace AirportManagement.Application.Services
                 throw new InvalidOperationException("Cannot add ticket to another user's booking.");
 
 
-            if (!string.Equals(booking.BookingStatus.ToString(), "Active", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(booking.BookingStatus?.Status, "Active", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Cannot add tickets to a non-active booking.");
 
             var schedule = await _unitOfWork.FlightScheduleRepository.GetByIdAsync(dto.FlightScheduleId);
@@ -86,6 +89,16 @@ namespace AirportManagement.Application.Services
             };
 
             return ResultObject<TicketCreateResponseDto>.Success(result);
+        }
+
+        public async Task<IReadOnlyList<TicketByFlightScheduleDto>> GetByFlightScheduleAsync(int flightScheduleId)
+        {
+            if (flightScheduleId <= 0)
+                throw new ArgumentException("FlightScheduleId must be positive.", nameof(flightScheduleId));
+
+            var tickets = await _unitOfWork.TicketRepository.GetByFlightScheduleAsync(flightScheduleId);
+
+            return tickets.Select(t => _mapper.Map<TicketByFlightScheduleDto>(t)).ToList();
         }
     }
 }

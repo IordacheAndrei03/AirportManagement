@@ -13,6 +13,7 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
 
         Task<IReadOnlyList<DomainTicket>> GetByFlightScheduleAsync(int flightScheduleId);
 
-        Task<Ticket?> GetByBookingIdAsync(int bookingId);
+        Task<DomainTicket?> GetByBookingIdAsync(int bookingId);
+
     }
 }

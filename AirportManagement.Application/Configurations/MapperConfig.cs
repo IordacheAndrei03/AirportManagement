@@ -76,6 +76,7 @@ namespace AirportManagement.Application.Configurations
             CreateMap<BookingCreateResponseDto, Booking>().ReverseMap();
             CreateMap<TicketCreateRequestDto, Ticket>().ReverseMap();
             CreateMap<TicketCreateResponseDto, Ticket>().ReverseMap();
+            CreateMap<TicketByFlightScheduleDto, Ticket>().ReverseMap();
         }
     }
     

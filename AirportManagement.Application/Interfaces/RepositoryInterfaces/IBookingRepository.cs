@@ -15,5 +15,7 @@ namespace AirportManagement.Application.Interfaces.RepositoryInterfaces
         Task<bool> HasActiveBookingsForTicketAsync(int ticketId);
 
         Task<BookingStatus?> GetByStatusAsync(string status);
+
+        Task<DomainBooking?> GetByIdWithStatusAsync(int id);
     }
 }

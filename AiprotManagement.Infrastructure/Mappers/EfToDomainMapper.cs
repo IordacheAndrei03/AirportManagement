@@ -52,7 +52,7 @@ namespace AirportManagement.Infrastructure.Mappers
             CreateMap<EfUser, DomainUser>().ReverseMap();
 
             CreateMap<EfBooking, DomainBooking>()
-                .ForMember(dest => dest.BookingStatus, opt => opt.Ignore())
+                .ForMember(dest => dest.BookingStatus, opt => opt.MapFrom(s => s.BookingStatus))
                 .ForMember(dest => dest.Tickets, opt => opt.Ignore())
                 .ReverseMap();
 
