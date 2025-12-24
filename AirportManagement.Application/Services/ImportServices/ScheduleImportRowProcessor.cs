@@ -2,11 +2,6 @@
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces.ImportInterfaces;
 using AirportManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AirportManagement.Application.Services.ImportServices
 {
@@ -22,7 +17,9 @@ namespace AirportManagement.Application.Services.ImportServices
         public async Task ProcessRowAsync(ScheduleImportRowDto row, int plannedStatusId, ScheduleImportResultDto result)
         {
             if (row.ScheduledArrivalUtc <= row.ScheduledDepartureUtc)
+            {
                 throw new Exception("Arrival must be after departure.");
+            }
 
             var airline = await _unitOfWork.AirlineRepository.GetByIataCodeAsync(row.AirlineIata)
                 ?? throw new Exception($"Unknown airline IATA code '{row.AirlineIata}'.");
@@ -58,11 +55,15 @@ namespace AirportManagement.Application.Services.ImportServices
 
             var gate = await _unitOfWork.GateRepository.GetByAirportIdAndCodeAsync(originAirport.Id, row.GateCode);
             if (gate == null)
+            {
                 throw new Exception("Gate does not exist.");
+            }
 
             var hasOverlap = await _unitOfWork.FlightScheduleRepository.HasGateOverlapAsync(gate.Id, row.ScheduledDepartureUtc);
             if (hasOverlap)
+            {
                 throw new Exception($"Gate overlap at {row.OriginIata}:{row.GateCode} {row.ScheduledDepartureUtc:O}–{row.ScheduledArrivalUtc:O}");
+            }
 
             var existing = await _unitOfWork.FlightScheduleRepository.FindByFlightAndDepartureAsync(flight.Id, row.ScheduledDepartureUtc);
 

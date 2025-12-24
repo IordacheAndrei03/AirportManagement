@@ -4,12 +4,7 @@ using AirportManagement.Infrastructure.ScaffoldDb.Entities;
 using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using AirportManagement.Application.Dtos.FlightSchedulesDtos;
 using DomainFlightSchedule = AirportManagement.Domain.Entities.FlightSchedule;
 using EfFlightSchedule = AirportManagement.Infrastructure.ScaffoldDb.Entities.FlightSchedule;
 
@@ -33,8 +28,15 @@ namespace AirportManagement.Infrastructure.Repositories
             int page,
             int pageSize)
         {
-            if (page <= 0) page = 1;
-            if (pageSize <= 0) pageSize = 20;
+            if (page <= 0)
+            {
+                page = 1;
+            }
+
+            if (pageSize <= 0)
+            {
+                pageSize = 20;
+            }
 
             var start = departureDateUtc.Date;
             var end = start.AddDays(1);
@@ -51,7 +53,6 @@ namespace AirportManagement.Infrastructure.Repositories
                 .OrderBy(fs => fs.ScheduledDepartureUtc)
                 .AsNoTracking();
 
-
             var efResults = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -65,7 +66,6 @@ namespace AirportManagement.Infrastructure.Repositories
         public async Task<bool> HasGateOverlapAsync(int gateId, DateTime scheduledDepartureUtc)
         {
             var bufferMinutes = 30;
-
             var windowStart = scheduledDepartureUtc.AddMinutes(-bufferMinutes);
             var windowEnd = scheduledDepartureUtc.AddMinutes(bufferMinutes);
 
@@ -103,7 +103,7 @@ namespace AirportManagement.Infrastructure.Repositories
             return _mapper.Map<DomainFlightSchedule?>(EfEntity);
         }
 
-        public async Task<IReadOnlyList<UpcomingStatsRow>> GetUpcomingStatsAsync(int days)
+        public async Task<IReadOnlyList<UpcomingSchedulesDto>> GetUpcomingStatsAsync(int days)
         {
             var start = DateTime.UtcNow.Date;
             var end = start.AddDays(days);
@@ -112,7 +112,7 @@ namespace AirportManagement.Infrastructure.Repositories
                 .Where(fs => fs.ScheduledDepartureUtc >= start &&
                              fs.ScheduledDepartureUtc < end)
                 .GroupBy(fs => fs.ScheduledDepartureUtc.Date)
-                .Select(g => new UpcomingStatsRow
+                .Select(g => new UpcomingSchedulesDto
                 {
                     Date = g.Key,
                     Flights = g.Count()
@@ -125,14 +125,12 @@ namespace AirportManagement.Infrastructure.Repositories
 
         public async Task<DomainFlightSchedule?> FindByFlightAndDepartureAsync(
              int flightId,
-             DateTime departureUtc,
-             CancellationToken ct = default)
+             DateTime departureUtc)
         {
             var efEntity = await _context.FlightSchedules
                 .FirstOrDefaultAsync(fs =>
                     fs.FlightId == flightId &&
-                    fs.ScheduledDepartureUtc == departureUtc,
-                    ct);
+                    fs.ScheduledDepartureUtc == departureUtc);
 
             return _mapper.Map<DomainFlightSchedule?>(efEntity);
         }

@@ -1,23 +1,15 @@
-﻿using AirportManagement.Application.Dtos.Flights;
-using AirportManagement.Application.Dtos.FlightSchedulesDtos;
+﻿using AirportManagement.Application.Dtos.FlightSchedulesDtos;
 using AirportManagement.Application.Enums;
-using AirportManagement.Application.Exceptions;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces.ImportInterfaces;
+using AirportManagement.Application.Results;
 using AirportManagement.Domain.Entities;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace AirportManagement.Application.Services
 {
-
     public class FlightScheduleService : IFlightScheduleService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -55,7 +47,6 @@ namespace AirportManagement.Application.Services
             }
 
             var rows = await _unitOfWork.FlightScheduleRepository.GetUpcomingStatsAsync(days);
-
             if (rows == null || rows.Count == 0)
             {
                 return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.NotFound($"No upcoming flights found for the {days} days.");
@@ -109,13 +100,14 @@ namespace AirportManagement.Application.Services
         {
             var rowsResult = await _importParser.ParseAsync(file);
             if (!rowsResult.IsSuccess)
+            {
                 return ResultObject<ScheduleImportResultDto>.Invalid(rowsResult.Error!);
+            }
 
             var rows = rowsResult.Value!;
             var result = new ScheduleImportResultDto { Total = rows.Count };
 
-            var plannedStatusId = await _unitOfWork.FlightStatusRepository
-                .GetStatusIdByNameAsync(FlightScheduleStatus.Scheduled);
+            var plannedStatusId = await _unitOfWork.FlightStatusRepository.GetStatusIdByNameAsync(FlightScheduleStatus.Scheduled);
 
             var rowIndex = 0;
 

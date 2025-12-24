@@ -3,12 +3,6 @@ using AirportManagement.Infrastructure.ScaffoldDb.Entities;
 using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using DomainTicket = AirportManagement.Domain.Entities.Ticket;
 using EfTicket = AirportManagement.Infrastructure.ScaffoldDb.Entities.Ticket;
 

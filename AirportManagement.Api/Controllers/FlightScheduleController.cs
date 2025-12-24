@@ -1,9 +1,7 @@
 ﻿using AirportManagement.Api.Extensions;
-using AirportManagement.Application;
 using AirportManagement.Application.Dtos.FlightSchedulesDtos;
 using AirportManagement.Application.Enums;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
-using AirportManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,8 +39,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Staff")]
-        public async Task<ActionResult> Create(
-             [FromBody] FlightScheduleCreateDto dto)
+        public async Task<ActionResult> Create([FromBody] FlightScheduleCreateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -57,8 +54,7 @@ namespace AirportManagement.Api.Controllers
         [HttpPost("import")]
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "Staff")]
-        public async Task<ActionResult<ScheduleImportResultDto>> Import(
-        [FromForm] ScheduleImportRequest request)
+        public async Task<ActionResult<ScheduleImportResultDto>> Import([FromForm] ScheduleImportRequest request)
         {
             var file = request.File;
             var result = await _scheduleService.ImportAsync(file);

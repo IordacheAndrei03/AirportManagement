@@ -1,15 +1,9 @@
 ﻿using AirportManagement.Application.Dtos.Flights;
-using AirportManagement.Application.Exceptions;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
+using AirportManagement.Application.Results;
 using AirportManagement.Domain.Entities;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AirportManagement.Application.Services
 {
@@ -42,24 +36,16 @@ namespace AirportManagement.Application.Services
             return ResultObject<FlightDetailsDto>.Success(flightDto);
         }
 
-        public async Task<ResultObject<IReadOnlyList<FlightSearchScheduleDto>>> SearchByRouteAndDateAsync(
-             string originIata,
-             string destinationIata,
-             DateOnly departureDate,
-             int page,
-             int pageSize)
+        public async Task<ResultObject<IReadOnlyList<FlightSearchScheduleDto>>> SearchByRouteAndDateAsync(string originIata, string destinationIata, DateOnly departureDate, int page, int pageSize)
         {
-            if (string.IsNullOrWhiteSpace(originIata) ||
-                string.IsNullOrWhiteSpace(destinationIata))
+            if (string.IsNullOrWhiteSpace(originIata) || string.IsNullOrWhiteSpace(destinationIata))
             {
-                return ResultObject<IReadOnlyList<FlightSearchScheduleDto>>.Invalid(
-                    "Origin and destination are required.");
+                return ResultObject<IReadOnlyList<FlightSearchScheduleDto>>.Invalid("Origin and destination are required.");
             }
 
             if (originIata.Equals(destinationIata, StringComparison.OrdinalIgnoreCase))
             {
-                return ResultObject<IReadOnlyList<FlightSearchScheduleDto>>.Invalid(
-                    "Origin and destination airports must be different.");
+                return ResultObject<IReadOnlyList<FlightSearchScheduleDto>>.Invalid("Origin and destination airports must be different.");
             }
 
             if (page <= 0) page = DefaultPage;
@@ -68,13 +54,7 @@ namespace AirportManagement.Application.Services
 
             var departureDateUtc = departureDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
-            var schedules = await _unitOfWork.FlightScheduleRepository
-                .SearchUpcomingByRouteAndDateAsync(
-                    originIata,
-                    destinationIata,
-                    departureDateUtc,
-                    page,
-                    pageSize);
+            var schedules = await _unitOfWork.FlightScheduleRepository.SearchUpcomingByRouteAndDateAsync(originIata, destinationIata, departureDateUtc, page, pageSize);
 
             var dtoList = _mapper.Map<IReadOnlyList<FlightSearchScheduleDto>>(schedules);
 
@@ -153,7 +133,6 @@ namespace AirportManagement.Application.Services
             if (flightUpdateDto.OriginIata.Equals(flightUpdateDto.DestinationIata, StringComparison.OrdinalIgnoreCase))
             {
                 return Result.Invalid("Origin and destination airports must be different.");
-
             }
 
             var flightRepo = _unitOfWork.FlightRepository;
@@ -192,7 +171,7 @@ namespace AirportManagement.Application.Services
             }
 
             var aircraft = await aircraftRepo.GetByTailNoAsync(flightUpdateDto.DefaultAircraftTail);
-                if (aircraft is null)
+            if (aircraft is null)
             {
                 return Result.Invalid($"Unknown aircraft tail number '{flightUpdateDto.DefaultAircraftTail}'.");
             }
@@ -223,6 +202,7 @@ namespace AirportManagement.Application.Services
 
             flightRepo.Update(flight);
             await _unitOfWork.SaveChangesAsync();
+
             return Result.Success();
         }
 

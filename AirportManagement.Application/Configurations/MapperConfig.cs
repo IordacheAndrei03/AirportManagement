@@ -1,5 +1,4 @@
-﻿using AirportManagement.Application.Dtos;
-using AirportManagement.Application.Dtos.AuthDtos;
+﻿using AirportManagement.Application.Dtos.AuthDtos;
 using AirportManagement.Application.Dtos.BookingDtos;
 using AirportManagement.Application.Dtos.Flights;
 using AirportManagement.Application.Dtos.FlightSchedulesDtos;
@@ -68,14 +67,18 @@ namespace AirportManagement.Application.Configurations
             .ForMember(dest => dest.Status,
                 opt => opt.MapFrom(src => src.FlightStatus.Status));
 
-            CreateMap<UpcomingStatsRow, UpcomingSchedulesDto>();
-
             CreateMap<ApiUserDto,ApiUser>().ReverseMap();
+
             CreateMap<BookingCreateRequestDto, Booking>().ReverseMap();
+
             CreateMap<BookingDetailsDto, Booking>().ReverseMap();
+
             CreateMap<BookingCreateResponseDto, Booking>().ReverseMap();
+
             CreateMap<TicketCreateRequestDto, Ticket>().ReverseMap();
+
             CreateMap<TicketCreateResponseDto, Ticket>().ReverseMap();
+
             CreateMap<TicketByFlightScheduleDto, Ticket>().ReverseMap();
         }
     }

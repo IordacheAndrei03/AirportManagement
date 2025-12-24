@@ -17,16 +17,28 @@ namespace AirportManagement.Api.WeServices
             get
             {
                 var user = _httpContextAccessor.HttpContext?.User;
-                if (user is null) return null;
+                if (user is null)
+                {
+                    return null;
+                }
 
                 var id = user.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (!string.IsNullOrWhiteSpace(id)) return id;
+                if (!string.IsNullOrWhiteSpace(id))
+                {
+                    return id;
+                }
 
                 id = user.FindFirstValue("sub");
-                if (!string.IsNullOrWhiteSpace(id)) return id;
+                if (!string.IsNullOrWhiteSpace(id))
+                {
+                    return id;
+                }
 
                 id = user.FindFirstValue("uid");
-                if (!string.IsNullOrWhiteSpace(id)) return id;
+                if (!string.IsNullOrWhiteSpace(id))
+                {
+                    return id;
+                }
 
                 return null;
             }

@@ -2,7 +2,6 @@
 using AirportManagement.Application.Dtos.AuthDtos;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Runtime.InteropServices;
 
 namespace AirportManagement.Api.Controllers
 {
@@ -31,6 +30,7 @@ namespace AirportManagement.Api.Controllers
                 }
                 return BadRequest(ModelState);
             }
+
             return Ok(userDto);
         }
 
@@ -45,6 +45,7 @@ namespace AirportManagement.Api.Controllers
                 ModelState.AddModelError("Login", "Invalid login attempt.");
                 return Unauthorized();
             }
+
             return Ok(authResponse);
         }
     }

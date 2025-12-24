@@ -1,17 +1,11 @@
 ﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
-using AirportManagement.Infrastructure.ScaffoldDb.Entities;
 using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DomainBooking = AirportManagement.Domain.Entities.Booking;
 using EfBooking = AirportManagement.Infrastructure.ScaffoldDb.Entities.Booking;
 using DomainBookingStatus = AirportManagement.Domain.Entities.BookingStatus;
-using EfBookingStatus = AirportManagement.Infrastructure.ScaffoldDb.Entities.BookingStatus;
+
 
 namespace AirportManagement.Infrastructure.Repositories
 {
@@ -78,7 +72,10 @@ namespace AirportManagement.Infrastructure.Repositories
                 .ExecuteUpdateAsync(s => s.SetProperty(b => b.Quantity, b => b.Quantity + 1));
 
             if (updated == 0)
+            {
                 throw new KeyNotFoundException($"Booking {bookingId} not found.");
+
+            }
         }
     }
 }

@@ -31,12 +31,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Client,Staff")]
-        public async Task<ActionResult<IReadOnlyList<FlightSearchScheduleDto>>> SearchByRouteAndDate(
-            [FromQuery] string origin,
-            [FromQuery] string destination,
-            [FromQuery] DateOnly date,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 20)
+        public async Task<ActionResult<IReadOnlyList<FlightSearchScheduleDto>>> SearchByRouteAndDate([FromQuery] string origin, [FromQuery] string destination, [FromQuery] DateOnly date, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             var result = await _flightService.SearchByRouteAndDateAsync(origin, destination, date, page, pageSize);
 
@@ -45,8 +40,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Staff")]
-        public async Task<ActionResult<int>> Create(
-           [FromBody] FlightCreateDto dto)
+        public async Task<ActionResult<int>> Create([FromBody] FlightCreateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -60,9 +54,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Staff")]
-        public async Task<ActionResult> Update(
-            int id,
-            [FromBody] FlightCreateDto dto)
+        public async Task<ActionResult> Update(int id, [FromBody] FlightCreateDto dto)
         {
             if (!ModelState.IsValid)
             {

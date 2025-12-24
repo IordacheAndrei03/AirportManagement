@@ -2,11 +2,6 @@
 using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DomainAirline = AirportManagement.Domain.Entities.Airline;
 using EfAirline = AirportManagement.Infrastructure.ScaffoldDb.Entities.Airline;
 
@@ -21,12 +16,6 @@ namespace AirportManagement.Infrastructure.Repositories
         {
             _context = context;
             _mapper = mapper;
-        }
-
-        public async Task<bool> IsIataCodeExistsAsync(string iataCode)
-        {
-            return await _context.Airlines
-                .AnyAsync(a => a.Iatacode == iataCode);
         }
 
         public async Task<DomainAirline?> GetByIataCodeAsync(string iataCode)

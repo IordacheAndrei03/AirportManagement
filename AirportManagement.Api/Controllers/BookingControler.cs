@@ -1,5 +1,4 @@
 ﻿using AirportManagement.Api.Extensions;
-using AirportManagement.Application;
 using AirportManagement.Application.Dtos.BookingDtos;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -20,8 +19,7 @@ namespace AirportManagement.Api.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Staff,Client")]
-        public async Task<ActionResult<BookingCreateResponseDto>> Create(
-            [FromBody] BookingCreateRequestDto dto)
+        public async Task<ActionResult<BookingCreateResponseDto>> Create([FromBody] BookingCreateRequestDto dto)
         {
             if (!ModelState.IsValid)
             {

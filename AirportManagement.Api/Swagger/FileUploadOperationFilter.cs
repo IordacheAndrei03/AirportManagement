@@ -7,7 +7,6 @@ namespace AirportManagement.Api.Swagger
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            // găsim parametrii IFormFile / IFormFile[]
             var fileParameters = context.MethodInfo.GetParameters()
                 .Where(p => p.ParameterType == typeof(IFormFile) || p.ParameterType == typeof(IFormFile[]))
                 .ToArray();
@@ -15,7 +14,6 @@ namespace AirportManagement.Api.Swagger
             if (!fileParameters.Any())
                 return;
 
-            // Dacă există deja RequestBody, păstrăm; altfel definim unul
             var properties = fileParameters.ToDictionary(
                 p => p.Name,
                 p => p.ParameterType == typeof(IFormFile)

@@ -1,13 +1,7 @@
 ﻿using AirportManagement.Application.Interfaces.RepositoryInterfaces;
-using AirportManagement.Infrastructure.ScaffoldDb.Entities;
 using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DomainFlight = AirportManagement.Domain.Entities.Flight;
 using EfFlight = AirportManagement.Infrastructure.ScaffoldDb.Entities.Flight;
 
@@ -23,6 +17,7 @@ namespace AirportManagement.Infrastructure.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper;  
         }
+
         public async Task<DomainFlight?> GetByIdWithDetailsAsync(int id)
         {
             var efEntity = await _context.Flights
@@ -32,6 +27,7 @@ namespace AirportManagement.Infrastructure.Repositories
                 .Include(f => f.DefaultAircraft)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(f => f.Id == id);
+
             return _mapper.Map<DomainFlight?>(efEntity);
         }
 
@@ -78,11 +74,12 @@ namespace AirportManagement.Infrastructure.Repositories
         int airlineId,
         string flightNumber,
         int originAirportId,
-        int destinationAirportId,
-        CancellationToken cancellationToken = default)
+        int destinationAirportId)
         {
             if (string.IsNullOrWhiteSpace(flightNumber))
+            {
                 return null;
+            }
 
             var normalizedFlightNumber = flightNumber.Trim().ToUpperInvariant();
 
@@ -92,8 +89,8 @@ namespace AirportManagement.Infrastructure.Repositories
                     f.AirlineId == airlineId
                     && f.OriginAirport == originAirportId
                     && f.DestinationAirport == destinationAirportId
-                    && EF.Functions.Like(f.FlightNumber.ToUpper(), normalizedFlightNumber),
-                    cancellationToken);
+                    && EF.Functions.Like(f.FlightNumber.ToUpper(), normalizedFlightNumber));
+
             return _mapper.Map<DomainFlight?>(efEntity);
         }
     }

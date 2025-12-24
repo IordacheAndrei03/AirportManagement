@@ -1,15 +1,9 @@
 ﻿using AirportManagement.Application.Dtos.TicketDtos;
-using AirportManagement.Application.Exceptions;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
+using AirportManagement.Application.Results;
 using AirportManagement.Domain.Entities;
 using AutoMapper;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AirportManagement.Application.Services
 {

@@ -1,9 +1,4 @@
 ﻿using AirportManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DomainBooking = AirportManagement.Domain.Entities.Booking;
 
 namespace AirportManagement.Application.Interfaces.RepositoryInterfaces

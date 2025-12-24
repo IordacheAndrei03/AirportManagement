@@ -2,12 +2,6 @@
 using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AirportManagement.Infrastructure.Repositories
 {
@@ -38,26 +32,6 @@ namespace AirportManagement.Infrastructure.Repositories
             await _dbSet.AddAsync(efEntity);
         }
 
-        public Task AddRangeAsync(IEnumerable<TDomain> entities)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Delete(TDomain entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        //public Task<IEnumerable<TDomain>> FindAsync(Func<TDomain, bool> predicate)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public Task<IEnumerable<TDomain>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
         public virtual async Task<TDomain> GetByIdAsync(int id)
         {
             var efEntity = await _dbSet.FindAsync(id);
@@ -70,21 +44,6 @@ namespace AirportManagement.Infrastructure.Repositories
             _context.Entry(efEntity).State = EntityState.Detached;
 
             return _mapper.Map<TDomain>(efEntity);
-        }
-
-        public async Task<IEnumerable<TDomain>> GetPagedAsync(int page, int pageSize)
-        {
-            var efEntity = await _dbSet
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return _mapper.Map<IEnumerable<TDomain>>(efEntity);
-        }
-
-        public IQueryable<TDomain> Query()
-        {
-            throw new NotImplementedException();
         }
 
         public async void Update(TDomain entity)

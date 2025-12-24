@@ -40,15 +40,23 @@ namespace AirportManagement.Infrastructure.Mappers
         public EfToDomainMapper()
         {
             CreateMap<EfFlight, DomainFlight>().ReverseMap();
+
             CreateMap<EfAircraft, DomainAircraft>().ReverseMap();
+
             CreateMap<EfAirport, DomainAirport>().ReverseMap();
-            //CreateMap<EfBooking, DomainBooking>().ReverseMap();
+
             CreateMap<EfTicket, DomainTicket>().ReverseMap();
+
             CreateMap<EfAirline, DomainAirline>().ReverseMap();
+
             CreateMap<EfFlightStatus, DomainFlightStatus>().ReverseMap();
+
             CreateMap<EfFlightSchedule, DomainFlightSchedule>().ReverseMap();
+
             CreateMap<EfGate, DomainGate>().ReverseMap();
+
             CreateMap<EfBookingStatus, DomainBookingStatus>().ReverseMap();
+
             CreateMap<EfUser, DomainUser>().ReverseMap();
 
             CreateMap<EfBooking, DomainBooking>()

@@ -1,13 +1,5 @@
-﻿using AirportManagement.Application.Exceptions;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Newtonsoft.Json;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AirportManagement.Application.Middleware
 {
@@ -39,37 +31,19 @@ namespace AirportManagement.Application.Middleware
         {
             context.Response.ContentType = "application/json";
             HttpStatusCode statusCode = HttpStatusCode.InternalServerError;
-            var errorDetails = new ErrorDeatils
+
+            var errorDetails = new ErrorDetails
             {
                 ErrorType = "Failure",
                 ErrorMessage = ex.Message,
             };
 
-            switch (ex)
-            {
-                case NotFoundException notFoundException:
-                    statusCode = HttpStatusCode.NotFound;
-                    errorDetails.ErrorType = "Not Found";
-                    break;
-                case BadRequestException badRequestException:
-                    statusCode = HttpStatusCode.BadRequest;
-                    errorDetails.ErrorType = "Bad Request";
-                    break;
-                case ConflictException conflictException:
-                    statusCode = HttpStatusCode.Conflict;
-                    errorDetails.ErrorType = "Conflict";
-                    break;
-                default:
-                    break;
-            }
-
             string response = JsonConvert.SerializeObject(errorDetails);
-            context.Response.StatusCode = (int)statusCode;
             return context.Response.WriteAsync(response);
         }
     }
 
-    public class ErrorDeatils
+    public class ErrorDetails
     {
         public string ErrorType { get; set; }
         public string ErrorMessage { get; set; }

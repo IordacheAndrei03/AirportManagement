@@ -2,20 +2,16 @@
 using AirportManagement.Infrastructure.ScaffoldDb.Context;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DomainGate = AirportManagement.Domain.Entities.Gate;
 using EfGate = AirportManagement.Infrastructure.ScaffoldDb.Entities.Gate;
 
 namespace AirportManagement.Infrastructure.Repositories
 {
-    public class GateRepository:GenericRepository<DomainGate,EfGate>, IGateRepository
+    public class GateRepository : GenericRepository<DomainGate, EfGate>, IGateRepository
     {
         private readonly AirportManagementContext _context;
         private readonly IMapper _mapper;
+
         public GateRepository(AirportManagementContext context, IMapper mapper) : base(context, mapper)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -26,11 +22,9 @@ namespace AirportManagement.Infrastructure.Repositories
         {
             var efEntity = await _context.Gates
                 .AsNoTracking()
-                .FirstOrDefaultAsync(g =>
-                    g.AirportId == airportId &&
-                    g.Code == gateCode);
-            return _mapper.Map<DomainGate?>(efEntity);
+                .FirstOrDefaultAsync(g => g.AirportId == airportId && g.Code == gateCode);
 
+            return _mapper.Map<DomainGate?>(efEntity);
         }
     }
 }

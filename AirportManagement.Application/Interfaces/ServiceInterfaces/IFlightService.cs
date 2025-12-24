@@ -1,13 +1,5 @@
 ﻿using AirportManagement.Application.Dtos.Flights;
-using AirportManagement.Application.Dtos.FlightSchedulesDtos;
-using AirportManagement.Domain.Entities;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using AirportManagement.Application.Results;
 
 namespace AirportManagement.Application.Interfaces.ServiceInterfaces
 {
@@ -15,12 +7,7 @@ namespace AirportManagement.Application.Interfaces.ServiceInterfaces
     {
         Task<ResultObject<FlightDetailsDto>> GetByIdAsync(int id);
 
-        Task<ResultObject<IReadOnlyList<FlightSearchScheduleDto>>> SearchByRouteAndDateAsync(
-           string originIata,
-           string destinationIata,
-           DateOnly departureDate,
-           int page,
-           int pageSize);
+        Task<ResultObject<IReadOnlyList<FlightSearchScheduleDto>>> SearchByRouteAndDateAsync(string originIata, string destinationIata, DateOnly departureDate, int page, int pageSize);
 
         Task<ResultObject<int>> CreateFlightAsync(FlightCreateDto flightCreateDto);
 

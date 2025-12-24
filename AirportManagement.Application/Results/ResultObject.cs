@@ -1,4 +1,5 @@
 ﻿using AirportManagement.Application.Enums;
+using AirportManagement.Application.Results;
 
 namespace AirportManagement.Application
 {
@@ -21,7 +22,7 @@ namespace AirportManagement.Application
             new(ResultStatus.Invalid, default, error);
 
         public static new ResultObject<T> Conflict(string error) =>
-    new(ResultStatus.Conflict, default, error);
+            new(ResultStatus.Conflict, default, error);
 
         public static new ResultObject<T> Forbidden(string error) =>
             new(ResultStatus.Forbidden, default, error);

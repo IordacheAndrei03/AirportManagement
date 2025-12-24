@@ -1,9 +1,7 @@
 ﻿using AirportManagement.Api.Extensions;
 using AirportManagement.Application;
 using AirportManagement.Application.Dtos.TicketDtos;
-using AirportManagement.Application.Enums;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
-using AirportManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +29,6 @@ namespace AirportManagement.Api.Controllers
 
         [HttpGet("by-flight/{flightScheduleId:int}")]
         [Authorize(Roles = "Staff,Client")]
-
         public async Task<ActionResult<IReadOnlyList<TicketByFlightScheduleDto>>> GetByFlightSchedule(int flightScheduleId)
         {
             var result = await _ticketService.GetByFlightScheduleAsync(flightScheduleId);

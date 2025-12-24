@@ -5,15 +5,11 @@ using AirportManagement.Domain.Entities;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace AirportManagement.Application.Services
 {
@@ -54,7 +50,6 @@ namespace AirportManagement.Application.Services
             user.UserName = userDto.Email;
 
             var result = await _userManager.CreateAsync(user, userDto.Password);
-
             if (result.Succeeded)
             {
                 var role = userDto.Role?.Trim();

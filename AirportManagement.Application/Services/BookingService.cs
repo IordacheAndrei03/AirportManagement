@@ -1,28 +1,19 @@
 ﻿using AirportManagement.Application.Dtos.BookingDtos;
-using AirportManagement.Application.Exceptions;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
+using AirportManagement.Application.Results;
 using AirportManagement.Domain.Entities;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AirportManagement.Application.Services
 {
     public class BookingService : IBookingService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
 
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService CurentUserService)
+        public BookingService(IUnitOfWork unitOfWork, ICurrentUserService CurentUserService)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
             _currentUserService = CurentUserService;
         }
 
@@ -31,7 +22,6 @@ namespace AirportManagement.Application.Services
             var userId = _currentUserService.UserId;
 
             var activeStatus = await _unitOfWork.BookingRepository.GetByStatusAsync("Active");
-
             if (activeStatus is null)
             {
                 return ResultObject<BookingCreateResponseDto>.Invalid("Booking status 'Active' is not configured.");
@@ -50,7 +40,6 @@ namespace AirportManagement.Application.Services
 
             await _unitOfWork.BookingRepository.AddAsync(booking);
             await _unitOfWork.SaveChangesAsync();
-
 
             var response = new BookingCreateResponseDto
             {
