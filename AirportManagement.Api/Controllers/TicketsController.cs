@@ -2,6 +2,8 @@
 using AirportManagement.Application.Dtos.TicketDtos;
 using AirportManagement.Application.Enums;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
+using AirportManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AirportManagement.Api.Controllers
@@ -32,8 +34,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpGet("by-flight/{flightScheduleId:int}")]
-        public async Task<ActionResult<IReadOnlyList<TicketByFlightScheduleDto>>> GetByFlightSchedule(
-    int flightScheduleId)
+        public async Task<ActionResult<IReadOnlyList<TicketByFlightScheduleDto>>> GetByFlightSchedule(int flightScheduleId)
         {
             try
             {
@@ -48,6 +49,30 @@ namespace AirportManagement.Api.Controllers
                     Detail = ex.Message
                 });
             }
+        }
+
+        [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Staff")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            await _ticketService.DeleteAsync(id);
+            return NoContent();
+        }
+
+        [HttpPut("{ticketId:int}/seat")]
+        public async Task<ActionResult<ResultObject<TicketSeatUpdateDto>>> UpdateSeat(
+        int ticketId,
+        [FromBody] TicketSeatUpdateDto body)
+        {
+            var result = await _ticketService.UpdateSeatNumberAsync(ticketId, body.SeatNumber);
+
+            return result.Status switch
+            {
+                ResultStatus.Ok => Ok(result),
+                ResultStatus.NotFound => NotFound(result),
+                ResultStatus.Invalid => BadRequest(result),
+                _ => BadRequest(result)
+            };
         }
     }
 }

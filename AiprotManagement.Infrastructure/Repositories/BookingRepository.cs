@@ -70,5 +70,15 @@ namespace AirportManagement.Infrastructure.Repositories
             return _mapper.Map<DomainBooking>(efEntity);
 
         }
+
+        public async Task IncrementQuantityAsync(int bookingId)
+        {
+            var updated = await _context.Bookings
+                .Where(b => b.Id == bookingId)
+                .ExecuteUpdateAsync(s => s.SetProperty(b => b.Quantity, b => b.Quantity + 1));
+
+            if (updated == 0)
+                throw new KeyNotFoundException($"Booking {bookingId} not found.");
+        }
     }
 }

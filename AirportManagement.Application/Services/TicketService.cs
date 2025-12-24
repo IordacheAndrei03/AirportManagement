@@ -1,4 +1,5 @@
 ﻿using AirportManagement.Application.Dtos.TicketDtos;
+using AirportManagement.Application.Exceptions;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using AirportManagement.Domain.Entities;
@@ -75,7 +76,7 @@ namespace AirportManagement.Application.Services
 
             await _unitOfWork.TicketRepository.AddAsync(ticket);
 
-            booking.Quantity += 1;
+            await _unitOfWork.BookingRepository.IncrementQuantityAsync(booking.Id);
 
             await _unitOfWork.SaveChangesAsync();
 
@@ -91,6 +92,34 @@ namespace AirportManagement.Application.Services
             return ResultObject<TicketCreateResponseDto>.Success(result);
         }
 
+        public async Task<ResultObject<TicketSeatUpdateDto>> UpdateSeatNumberAsync(int ticketId, string seatNumber)
+        {
+            if (ticketId <= 0)
+                return ResultObject<TicketSeatUpdateDto>.Invalid("TicketId must be positive.");
+
+            if (string.IsNullOrWhiteSpace(seatNumber))
+                return ResultObject<TicketSeatUpdateDto>.Invalid("SeatNumber is required.");
+
+            seatNumber = seatNumber.Trim();
+
+            // ia ticket-ul (EF entity sau domain, depinde cum ai repo-ul)
+            var ticket = await _unitOfWork.TicketRepository.GetByIdAsync(ticketId);
+            if (ticket is null)
+                return ResultObject<TicketSeatUpdateDto>.NotFound($"Ticket {ticketId} not found.");
+
+            ticket.SeatNumber = seatNumber;
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var dto = new TicketSeatUpdateDto
+            {
+                TicketId = ticket.Id,
+                SeatNumber = ticket.SeatNumber
+            };
+
+            return ResultObject<TicketSeatUpdateDto>.Success(dto);
+        }
+
         public async Task<IReadOnlyList<TicketByFlightScheduleDto>> GetByFlightScheduleAsync(int flightScheduleId)
         {
             if (flightScheduleId <= 0)
@@ -99,6 +128,21 @@ namespace AirportManagement.Application.Services
             var tickets = await _unitOfWork.TicketRepository.GetByFlightScheduleAsync(flightScheduleId);
 
             return tickets.Select(t => _mapper.Map<TicketByFlightScheduleDto>(t)).ToList();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var ticketRepo = _unitOfWork.TicketRepository;
+            var ticket = await _unitOfWork.TicketRepository.GetByIdAsync(id);
+
+            if (ticket is null)
+            {
+                throw new NotFoundException($"Flight", id);
+            }
+
+            await _unitOfWork.TicketRepository.DeleteByIdAsync(id);
+
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
