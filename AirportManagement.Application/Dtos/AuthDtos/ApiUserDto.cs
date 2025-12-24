@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AirportManagement.Application.Dtos
+namespace AirportManagement.Application.Dtos.AuthDtos
 {
     public class ApiUserDto:LoginDto
     {

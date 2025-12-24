@@ -1,13 +1,12 @@
 ﻿using AirportManagement.Application.Dtos;
+using AirportManagement.Application.Dtos.AuthDtos;
+using AirportManagement.Application.Dtos.BookingDtos;
 using AirportManagement.Application.Dtos.Flights;
 using AirportManagement.Application.Dtos.FlightSchedulesDtos;
+using AirportManagement.Application.Dtos.TicketDtos;
 using AirportManagement.Domain.Entities;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace AirportManagement.Application.Configurations
 {
@@ -72,6 +71,11 @@ namespace AirportManagement.Application.Configurations
             CreateMap<UpcomingStatsRow, UpcomingSchedulesDto>();
 
             CreateMap<ApiUserDto,ApiUser>().ReverseMap();
+            CreateMap<BookingCreateRequestDto, Booking>().ReverseMap();
+            CreateMap<BookingDetailsDto, Booking>().ReverseMap();
+            CreateMap<BookingCreateResponseDto, Booking>().ReverseMap();
+            CreateMap<TicketCreateRequestDto, Ticket>().ReverseMap();
+            CreateMap<TicketCreateResponseDto, Ticket>().ReverseMap();
         }
     }
     

@@ -20,8 +20,8 @@ namespace AirportManagement.Infrastructure.Repositories
         private readonly AirportManagementContext _context;
         private readonly IMapper _mapper;
 
-        public BookingRepository(AirportManagementContext context,IMapper mapper)
-            : base(context,mapper)
+        public BookingRepository(AirportManagementContext context, IMapper mapper)
+            : base(context, mapper)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper;
@@ -29,7 +29,7 @@ namespace AirportManagement.Infrastructure.Repositories
 
         public async Task<DomainBooking?> GetByConfirmationCodeAsync(string confirmationCode)
         {
-            var efEntity =  await _context.Bookings
+            var efEntity = await _context.Bookings
               .Include(b => b.BookingStatus)
               .AsNoTracking()
               .FirstOrDefaultAsync(b => b.ConfirmationCode == confirmationCode);

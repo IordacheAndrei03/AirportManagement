@@ -20,10 +20,8 @@ namespace AirportManagement.Api.Controllers
 
         [HttpGet("{id:int}")]
         [Authorize(Roles = "Client,Staff")]
-        public async Task<ActionResult<FlightDetailsDto>> GetById(
-            int id)
+        public async Task<ActionResult<FlightDetailsDto>> GetById(int id)
         {
-
             var result = await _flightService.GetByIdAsync(id);
 
             return result.Status switch
@@ -36,7 +34,6 @@ namespace AirportManagement.Api.Controllers
                 }),
                 _ => Problem(statusCode: 500, title: "Unexpected error")
             };
-
         }
 
         [HttpGet]

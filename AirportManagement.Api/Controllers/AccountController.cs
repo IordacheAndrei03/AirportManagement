@@ -1,5 +1,6 @@
 ﻿using AirportManagement.Application.Dtos;
-using AirportManagement.Application.Interfaces;
+using AirportManagement.Application.Dtos.AuthDtos;
+using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.InteropServices;
 

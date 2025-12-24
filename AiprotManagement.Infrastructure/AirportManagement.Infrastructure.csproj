@@ -23,8 +23,4 @@
     <ProjectReference Include="..\AirportManagement.Application\AirportManagement.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ScaffoldContext\" />
-  </ItemGroup>
-
 </Project>

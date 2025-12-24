@@ -42,13 +42,13 @@ namespace AirportManagement.Infrastructure.Repositories
             return _mapper.Map<IReadOnlyList<DomainTicket>>(efEntity);
         }
 
-        public Task<DomainTicket?> GetByBookingIdAsync(int bookingId)
+        public async Task<DomainTicket?> GetByBookingIdAsync(int bookingId)
         {
-            var efEntity = _context.Tickets
+            var efEntity = await _context.Tickets
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.BookingId == bookingId);
 
-            return _mapper.Map<Task<DomainTicket?>>(efEntity);
+            return _mapper.Map<DomainTicket?>(efEntity);
         }
     }
 }

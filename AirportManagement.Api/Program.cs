@@ -1,7 +1,6 @@
 using AirportManagement.Api.Swagger;
 using AirportManagement.Api.WeServices;
 using AirportManagement.Application.Configurations;
-using AirportManagement.Application.Interfaces;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using AirportManagement.Application.Middleware;
