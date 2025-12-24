@@ -19,13 +19,13 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Staff")]
+        [Authorize(Roles = "Staff,Client")]
         public async Task<ActionResult<BookingCreateResponseDto>> Create(
             [FromBody] BookingCreateRequestDto dto)
         {
             if (!ModelState.IsValid)
             {
-                return ValidationProblem(ModelState); 
+                return ValidationProblem(ModelState);
             }
 
             var result = await _bookingService.CreateAsync();
@@ -34,6 +34,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpGet("{code}")]
+        [Authorize(Roles = "Staff,Client")]
         public async Task<ActionResult<BookingDetailsDto>> GetByCode(string code)
         {
             var result = await _bookingService.GetByCodeAsync(code);
@@ -42,9 +43,11 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpDelete("{code}")]
+        [Authorize(Roles = "Staff,Client")]
         public async Task<ActionResult> Cancel(string code)
         {
-            var result =await _bookingService.CancelAsync(code);
+            var result = await _bookingService.CancelAsync(code);
+
             return this.ToActionResult(result);
         }
     }

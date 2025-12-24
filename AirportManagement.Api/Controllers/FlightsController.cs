@@ -38,12 +38,7 @@ namespace AirportManagement.Api.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 20)
         {
-            var result = await _flightService.SearchByRouteAndDateAsync(
-                origin,
-                destination,
-                date,
-                page,
-                pageSize);
+            var result = await _flightService.SearchByRouteAndDateAsync(origin, destination, date, page, pageSize);
 
             return this.ToActionResult(result);
         }

@@ -21,6 +21,7 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Staff,Client")]
         public async Task<ActionResult<ResultObject<TicketCreateResponseDto>>> Create([FromBody] TicketCreateRequestDto dto)
         {
             var result = await _ticketService.CreateAsync(dto);
@@ -29,6 +30,8 @@ namespace AirportManagement.Api.Controllers
         }
 
         [HttpGet("by-flight/{flightScheduleId:int}")]
+        [Authorize(Roles = "Staff,Client")]
+
         public async Task<ActionResult<IReadOnlyList<TicketByFlightScheduleDto>>> GetByFlightSchedule(int flightScheduleId)
         {
             var result = await _ticketService.GetByFlightScheduleAsync(flightScheduleId);
@@ -45,10 +48,9 @@ namespace AirportManagement.Api.Controllers
             return this.ToActionResult(result);
         }
 
-        [HttpPut("{ticketId:int}/seat")]
-        public async Task<ActionResult<ResultObject<TicketSeatUpdateDto>>> UpdateSeat(
-        int ticketId,
-        [FromBody] TicketSeatUpdateDto body)
+        [HttpPut("/update-seat")]
+        [Authorize(Roles = "Staff")]
+        public async Task<ActionResult<ResultObject<TicketSeatUpdateDto>>> UpdateSeat(int ticketId, [FromBody] TicketSeatUpdateDto body)
         {
             var result = await _ticketService.UpdateSeatNumberAsync(ticketId, body.SeatNumber);
 
