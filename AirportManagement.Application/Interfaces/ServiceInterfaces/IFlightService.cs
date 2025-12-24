@@ -22,10 +22,10 @@ namespace AirportManagement.Application.Interfaces.ServiceInterfaces
            int page,
            int pageSize);
 
-        Task<int> CreateFlightAsync(FlightCreateDto flightCreateDto);
+        Task<ResultObject<int>> CreateFlightAsync(FlightCreateDto flightCreateDto);
 
-        Task UpdateAsync(int id, FlightCreateDto flightCreateDto);
+        Task<Result> UpdateAsync(int id, FlightCreateDto flightCreateDto);
 
-        Task DeleteAsync(int id);
+        Task<Result> DeleteAsync(int id);
     }
 }

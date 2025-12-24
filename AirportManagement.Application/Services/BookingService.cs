@@ -19,27 +19,29 @@ namespace AirportManagement.Application.Services
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
 
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper,ICurrentUserService CurentUserService)
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentUserService CurentUserService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _currentUserService = CurentUserService;
         }
 
-        public async Task<BookingCreateResponseDto> CreateAsync()
+        public async Task<ResultObject<BookingCreateResponseDto>> CreateAsync()
         {
             var userId = _currentUserService.UserId;
 
             var activeStatus = await _unitOfWork.BookingRepository.GetByStatusAsync("Active");
 
             if (activeStatus is null)
-                throw new BadRequestException("Booking status 'Active' is not configured.");
+            {
+                return ResultObject<BookingCreateResponseDto>.Invalid("Booking status 'Active' is not configured.");
+            }
 
             var confirmationCode = GenerateConfirmationCode();
 
             var booking = new Booking
             {
-                UserId = userId, 
+                UserId = userId,
                 BookingStatusId = activeStatus.Id,
                 CreatedUtc = DateTime.UtcNow,
                 ConfirmationCode = confirmationCode,
@@ -50,26 +52,36 @@ namespace AirportManagement.Application.Services
             await _unitOfWork.SaveChangesAsync();
 
 
-            return new BookingCreateResponseDto
+            var response = new BookingCreateResponseDto
             {
                 ConfirmationCode = confirmationCode,
                 Status = "Active",
                 Quantity = 1
             };
+
+            return ResultObject<BookingCreateResponseDto>.Success(response);
         }
 
-        public async Task<BookingDetailsDto?> GetByCodeAsync(string code)
+        public async Task<ResultObject<BookingDetailsDto>> GetByCodeAsync(string code)
         {
-            var booking = await _unitOfWork.BookingRepository.GetByConfirmationCodeAsync(code);
-            if (booking is null) return null;
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return ResultObject<BookingDetailsDto>.Invalid("Booking code is required.");
+            }
 
-            // luăm și ticketul asociat (în schema ta ticket are BookingId)
+            var booking = await _unitOfWork.BookingRepository.GetByConfirmationCodeAsync(code);
+            if (booking is null)
+            {
+                return ResultObject<BookingDetailsDto>.NotFound($"Booking with code '{code}' not found.");
+            }
+
             var ticket = await _unitOfWork.TicketRepository.GetByBookingIdAsync(booking.Id);
+
+            BookingDetailsDto dto;
 
             if (ticket is null)
             {
-                // booking fără ticket e inconsistent, dar nu dăm 500; returnăm minimal
-                return new BookingDetailsDto
+                dto = new BookingDetailsDto
                 {
                     ConfirmationCode = booking.ConfirmationCode,
                     Status = booking.BookingStatus?.Status ?? "Unknown",
@@ -78,49 +90,60 @@ namespace AirportManagement.Application.Services
                     TotalAmount = 0
                 };
             }
-
-            return new BookingDetailsDto
+            else
             {
-                ConfirmationCode = booking.ConfirmationCode,
-                Status = booking.BookingStatus?.Status ?? "Unknown",
-                CreatedUtc = booking.CreatedUtc,
-                Quantity = booking.Quantity,
-                FlightScheduleId = ticket.FlightScheduleId,
-                TicketId = ticket.Id,
-                PassengerFullName = ticket.PassangerFullName,
-                PassengerEmail = ticket.PassangerEmail,
-                TotalAmount = ticket.TotalPrice * booking.Quantity,
-                Currency = ticket.Currency
-            };
+                dto = new BookingDetailsDto
+                {
+                    ConfirmationCode = booking.ConfirmationCode,
+                    Status = booking.BookingStatus?.Status ?? "Unknown",
+                    CreatedUtc = booking.CreatedUtc,
+                    Quantity = booking.Quantity,
+                    FlightScheduleId = ticket.FlightScheduleId,
+                    TicketId = ticket.Id,
+                    PassengerFullName = ticket.PassangerFullName,
+                    PassengerEmail = ticket.PassangerEmail,
+                    TotalAmount = ticket.TotalPrice * booking.Quantity,
+                    Currency = ticket.Currency
+                };
+            }
+
+            return ResultObject<BookingDetailsDto>.Success(dto);
         }
 
-        public async Task CancelAsync(string code)
+        public async Task<Result> CancelAsync(string code)
         {
-            var booking = await _unitOfWork.BookingRepository.GetByConfirmationCodeAsync(code);
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return Result.Invalid("Booking code is required.");
+            }
 
+            var booking = await _unitOfWork.BookingRepository.GetByConfirmationCodeAsync(code);
             if (booking is null)
-                throw new KeyNotFoundException($"Booking with code '{code}' not found.");
+            {
+                return Result.NotFound($"Booking with code '{code}' not found.");
+            }
 
             var cancelledStatus = await _unitOfWork.BookingRepository.GetByStatusAsync("Cancelled");
-
             if (cancelledStatus is null)
-                throw new InvalidOperationException("Booking status 'Cancelled' is not configured.");
+            {
+                return Result.Invalid("Booking status 'Cancelled' is not configured.");
+            }
 
-            // dacă e deja cancelled, o facem idempotent (204)
             if (booking.BookingStatusId == cancelledStatus.Id)
-                return;
+            {
+                return Result.Success();
+            }
 
             booking.BookingStatusId = cancelledStatus.Id;
 
-            // “inventory restored”: prin faptul că status devine Cancelled,
-            // calculele de capacity nu mai includ booking-ul
             await _unitOfWork.SaveChangesAsync();
+
+            return Result.Success();
 
         }
 
         private static string GenerateConfirmationCode()
         {
-            // simplu: 6 caractere alfanumerice
             const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
             var rng = Random.Shared;
 

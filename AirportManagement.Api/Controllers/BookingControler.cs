@@ -1,4 +1,6 @@
-﻿using AirportManagement.Application.Dtos.BookingDtos;
+﻿using AirportManagement.Api.Extensions;
+using AirportManagement.Application;
+using AirportManagement.Application.Dtos.BookingDtos;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,34 +23,29 @@ namespace AirportManagement.Api.Controllers
         public async Task<ActionResult<BookingCreateResponseDto>> Create(
             [FromBody] BookingCreateRequestDto dto)
         {
-            if (!ModelState.IsValid) return ValidationProblem(ModelState);
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState); 
+            }
 
             var result = await _bookingService.CreateAsync();
-            return CreatedAtAction(nameof(GetByCode), new { code = result.ConfirmationCode }, result);
+
+            return this.ToCreatedResult(result);
         }
 
         [HttpGet("{code}")]
-        public async Task<ActionResult<BookingDetailsDto>> GetByCode(
-            string code)
+        public async Task<ActionResult<BookingDetailsDto>> GetByCode(string code)
         {
-            var dto = await _bookingService.GetByCodeAsync(code);
-            if (dto is null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "Booking not found",
-                    Detail = $"Booking with code '{code}' not found."
-                });
-            }
+            var result = await _bookingService.GetByCodeAsync(code);
 
-            return Ok(dto);
+            return this.ToActionResult(result);
         }
 
         [HttpDelete("{code}")]
         public async Task<ActionResult> Cancel(string code)
         {
-            await _bookingService.CancelAsync(code);
-            return NoContent();
+            var result =await _bookingService.CancelAsync(code);
+            return this.ToActionResult(result);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using AirportManagement.Application.Dtos.Flights;
+﻿using AirportManagement.Api.Extensions;
+using AirportManagement.Application;
+using AirportManagement.Application.Dtos.Flights;
 using AirportManagement.Application.Enums;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using AirportManagement.Domain.Entities;
@@ -24,16 +26,7 @@ namespace AirportManagement.Api.Controllers
         {
             var result = await _flightService.GetByIdAsync(id);
 
-            return result.Status switch
-            {
-                ResultStatus.Ok => Ok(result.Value),
-                ResultStatus.NotFound => NotFound(new ProblemDetails
-                {
-                    Title = "Flight not found",
-                    Detail = result.Error
-                }),
-                _ => Problem(statusCode: 500, title: "Unexpected error")
-            };
+            return this.ToActionResult(result);
         }
 
         [HttpGet]
@@ -52,16 +45,7 @@ namespace AirportManagement.Api.Controllers
                 page,
                 pageSize);
 
-            return result.Status switch
-            {
-                ResultStatus.Ok => Ok(result.Value),
-                ResultStatus.Invalid => BadRequest(new ValidationProblemDetails
-                {
-                    Title = "Invalid flight search",
-                    Detail = result.Error
-                }),
-                _ => Problem(statusCode: 500, title: "Unexpected error")
-            };
+            return this.ToActionResult(result);
         }
 
         [HttpPost]
@@ -74,12 +58,9 @@ namespace AirportManagement.Api.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var id = await _flightService.CreateFlightAsync(dto);
+            var result = await _flightService.CreateFlightAsync(dto);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id },
-                id);
+            return this.ToCreatedResult(result);
         }
 
         [HttpPut("{id:int}")]
@@ -92,16 +73,19 @@ namespace AirportManagement.Api.Controllers
             {
                 return ValidationProblem(ModelState);
             }
-            await _flightService.UpdateAsync(id, dto);
-            return Ok();
+
+            var result = await _flightService.UpdateAsync(id, dto);
+
+            return this.ToActionResult(result);
         }
 
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Staff")]
         public async Task<ActionResult> Delete(int id)
         {
-            await _flightService.DeleteAsync(id);
-            return NoContent();
+            var result = await _flightService.DeleteAsync(id);
+
+            return this.ToActionResult(result);
         }
 
     }

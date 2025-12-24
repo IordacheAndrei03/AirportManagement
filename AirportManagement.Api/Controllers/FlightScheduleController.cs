@@ -1,4 +1,6 @@
-﻿using AirportManagement.Application.Dtos.FlightSchedulesDtos;
+﻿using AirportManagement.Api.Extensions;
+using AirportManagement.Application;
+using AirportManagement.Application.Dtos.FlightSchedulesDtos;
 using AirportManagement.Application.Enums;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
 using AirportManagement.Application.Services;
@@ -25,16 +27,7 @@ namespace AirportManagement.Api.Controllers
         {
             var result = await _scheduleService.GetByIdAsync(id);
 
-            return result.Status switch
-            {
-                ResultStatus.Ok => Ok(result.Value),
-                ResultStatus.NotFound => NotFound(new ProblemDetails
-                {
-                    Title = "Flight not found",
-                    Detail = result.Error
-                }),
-                _ => Problem(statusCode: 500, title: "Unexpected error")
-            };
+            return this.ToActionResult(result);
         }
 
         [HttpGet("upcoming-stats/{days:int}")]
@@ -43,16 +36,7 @@ namespace AirportManagement.Api.Controllers
         {
             var result = await _scheduleService.GetUpcomingStatsAsync(days);
 
-            return result.Status switch
-            {
-                ResultStatus.Ok => Ok(result.Value),
-                ResultStatus.NotFound => NotFound(new ProblemDetails
-                {
-                    Title = "Flight not found",
-                    Detail = result.Error
-                }),
-                _ => Problem(statusCode: 500, title: "Unexpected error")
-            };
+            return this.ToActionResult(result);
         }
 
         [HttpPost]
@@ -65,12 +49,9 @@ namespace AirportManagement.Api.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var id = await _scheduleService.CreateAsync(dto);
+            var result = await _scheduleService.CreateAsync(dto);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id },
-                id);
+            return this.ToCreatedResult(result);
         }
 
         [HttpPost("import")]
@@ -83,12 +64,9 @@ namespace AirportManagement.Api.Controllers
             var file = request.File;
             var result = await _scheduleService.ImportAsync(file, cancellationToken);
 
-            if (result.Errors.Count == 0)
-            {
-                return StatusCode(StatusCodes.Status201Created, result);
-            }
-
-            return StatusCode(StatusCodes.Status207MultiStatus, result);
+            return result.Status == ResultStatus.Ok && result.Value!.Errors.Count == 0
+                ? StatusCode(StatusCodes.Status201Created, result)
+                : StatusCode(StatusCodes.Status207MultiStatus, result);
         }
     }
 }

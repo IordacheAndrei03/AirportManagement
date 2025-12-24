@@ -19,5 +19,11 @@ namespace AirportManagement.Application
 
         public static new ResultObject<T> Invalid(string error) =>
             new(ResultStatus.Invalid, default, error);
+
+        public static new ResultObject<T> Conflict(string error) =>
+    new(ResultStatus.Conflict, default, error);
+
+        public static new ResultObject<T> Forbidden(string error) =>
+            new(ResultStatus.Forbidden, default, error);
     }
 }

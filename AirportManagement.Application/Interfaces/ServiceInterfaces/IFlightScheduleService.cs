@@ -15,8 +15,8 @@ namespace AirportManagement.Application.Interfaces.ServiceInterfaces
 
         Task<ResultObject<IReadOnlyList<UpcomingSchedulesDto>>> GetUpcomingStatsAsync(int days);
 
-        Task<int> CreateAsync(FlightScheduleCreateDto dto);
+        Task<ResultObject<int>> CreateAsync(FlightScheduleCreateDto dto);
 
-        Task<ScheduleImportResultDto> ImportAsync(IFormFile file, CancellationToken cancellationToken = default);
+        Task<ResultObject<ScheduleImportResultDto>> ImportAsync(IFormFile file, CancellationToken cancellationToken = default);
     }
 }

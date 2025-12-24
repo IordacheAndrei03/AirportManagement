@@ -32,7 +32,7 @@ namespace AirportManagement.Application.Services
         {
             var flight = await _unitOfWork.FlightRepository.GetByIdWithDetailsAsync(id);
 
-            if(flight is null)
+            if (flight is null)
             {
                 return ResultObject<FlightDetailsDto>.NotFound($"Flight with Id={id} not found.");
             }
@@ -81,11 +81,11 @@ namespace AirportManagement.Application.Services
             return ResultObject<IReadOnlyList<FlightSearchScheduleDto>>.Success(dtoList);
         }
 
-        public async Task<int> CreateFlightAsync(FlightCreateDto flightCreateDto)
+        public async Task<ResultObject<int>> CreateFlightAsync(FlightCreateDto flightCreateDto)
         {
             if (flightCreateDto.OriginIata.Equals(flightCreateDto.DestinationIata, StringComparison.OrdinalIgnoreCase))
             {
-                throw new BadRequestException("Origin and destination airports must be different.");
+                return ResultObject<int>.Invalid("Origin and destination airports must be different.");
             }
 
             var airline = await _unitOfWork.AirlineRepository.GetByIataCodeAsync(flightCreateDto.AirlineIata);
@@ -95,22 +95,22 @@ namespace AirportManagement.Application.Services
 
             if (airline is null)
             {
-                throw new BadRequestException($"Unknown airline IATA code '{flightCreateDto.AirlineIata}'.");
+                return ResultObject<int>.Invalid($"Unknown airline IATA code '{flightCreateDto.AirlineIata}'.");
             }
 
             if (originAirport is null)
             {
-                throw new BadRequestException($"Unknown origin airport IATA code '{flightCreateDto.OriginIata}'.");
+                return ResultObject<int>.Invalid($"Unknown origin airport IATA code '{flightCreateDto.OriginIata}'.");
             }
 
             if (destinationAirport is null)
             {
-                throw new BadRequestException($"Unknown destination airport IATA code '{flightCreateDto.DestinationIata}'.");
+                return ResultObject<int>.Invalid($"Unknown destination airport IATA code '{flightCreateDto.DestinationIata}'.");
             }
 
             if (aircraft is null)
             {
-                throw new BadRequestException($"Unknown aircraft tail number '{flightCreateDto.DefaultAircraftTail}'.");
+                return ResultObject<int>.Invalid($"Unknown aircraft tail number '{flightCreateDto.DefaultAircraftTail}'.");
             }
 
             var hasDuplicate = await _unitOfWork.FlightRepository.ExistsDuplicateRouteAsync(
@@ -122,7 +122,7 @@ namespace AirportManagement.Application.Services
 
             if (hasDuplicate)
             {
-                throw new BadRequestException("A flight with the same airline, number and route already exists.");
+                return ResultObject<int>.Conflict("A flight with the same airline, number and route already exists.");
             }
 
             var newFlight = new Flight
@@ -139,19 +139,21 @@ namespace AirportManagement.Application.Services
 
             if (flight.OriginAirport == flight.DestinationAirport)
             {
-                throw new ConflictException($"OriginAirport and DestinationAirport are equal (Id={flight.OriginAirport}).");
+                return ResultObject<int>.Conflict($"OriginAirport and DestinationAirport are equal (Id={flight.OriginAirport}).");
             }
 
             await _unitOfWork.FlightRepository.AddAsync(flight);
             await _unitOfWork.SaveChangesAsync();
-            return flight.Id;
+
+            return ResultObject<int>.Success(flight.Id);
         }
 
-        public async Task UpdateAsync(int id, FlightCreateDto flightUpdateDto)
+        public async Task<Result> UpdateAsync(int id, FlightCreateDto flightUpdateDto)
         {
             if (flightUpdateDto.OriginIata.Equals(flightUpdateDto.DestinationIata, StringComparison.OrdinalIgnoreCase))
             {
-                throw new BadRequestException("Origin and destination airports must be different.");
+                return Result.Invalid("Origin and destination airports must be different.");
+
             }
 
             var flightRepo = _unitOfWork.FlightRepository;
@@ -159,29 +161,41 @@ namespace AirportManagement.Application.Services
 
             if (flight is null)
             {
-                throw new NotFoundException($"Flight",id);
+                return Result.NotFound($"Flight with Id={id} not found.");
             }
 
             var airlineRepo = _unitOfWork.AirlineRepository;
             var airportRepo = _unitOfWork.AirportRepository;
             var aircraftRepo = _unitOfWork.AircraftRepository;
 
-            var airline = await airlineRepo.GetByIataCodeAsync(flightUpdateDto.AirlineIata)
-                ?? throw new BadRequestException($"Unknown airline IATA code '{flightUpdateDto.AirlineIata}.");
+            var airline = await airlineRepo.GetByIataCodeAsync(flightUpdateDto.AirlineIata);
+            if (airline is null)
+            {
+                return Result.Invalid($"Unknown airline IATA code '{flightUpdateDto.AirlineIata}'.");
+            }
 
-            var originAirport = await airportRepo.GetByIataCodeAsync(flightUpdateDto.OriginIata)
-                ?? throw new BadRequestException($"Unknown origin airport IATA code '{flightUpdateDto.OriginIata}'.");
+            var originAirport = await airportRepo.GetByIataCodeAsync(flightUpdateDto.OriginIata);
+            if (originAirport is null)
+            {
+                return Result.Invalid($"Unknown origin airport IATA code '{flightUpdateDto.OriginIata}'.");
+            }
 
-            var destinationAirport = await airportRepo.GetByIataCodeAsync(flightUpdateDto.DestinationIata)
-                ?? throw new BadRequestException($"Unknown destination airport IATA code '{flightUpdateDto.DestinationIata}'.");
+            var destinationAirport = await airportRepo.GetByIataCodeAsync(flightUpdateDto.DestinationIata);
+            if (destinationAirport is null)
+            {
+                return Result.Invalid($"Unknown destination airport IATA code '{flightUpdateDto.DestinationIata}'."); ;
+            }
 
             if (originAirport.Id == destinationAirport.Id)
             {
-                throw new BadRequestException("Origin and destination airports must be different.");
+                return Result.Invalid("Origin and destination airports must be different.");
             }
 
-            var aircraft = await aircraftRepo.GetByTailNoAsync(flightUpdateDto.DefaultAircraftTail)
-                ?? throw new BadRequestException($"Unknown aircraft tail number '{flightUpdateDto.DefaultAircraftTail}'.");
+            var aircraft = await aircraftRepo.GetByTailNoAsync(flightUpdateDto.DefaultAircraftTail);
+                if (aircraft is null)
+            {
+                return Result.Invalid($"Unknown aircraft tail number '{flightUpdateDto.DefaultAircraftTail}'.");
+            }
 
             var hasDuplicate = await _unitOfWork.FlightRepository.ExistsDuplicateRouteAsync(
                 airline.Id,
@@ -192,7 +206,7 @@ namespace AirportManagement.Application.Services
 
             if (hasDuplicate)
             {
-                throw new BadRequestException("A flight with the same airline, number and route already exists.");
+                return Result.Conflict("A flight with the same airline, number and route already exists.");
             }
 
             flight.AirlineId = airline.Id;
@@ -204,21 +218,22 @@ namespace AirportManagement.Application.Services
 
             if (flight.OriginAirport == flight.DestinationAirport)
             {
-                throw new ConflictException("OriginAirport and DestinationAirport ended up equal.");
+                return Result.Conflict("OriginAirport and DestinationAirport ended up equal.");
             }
 
             flightRepo.Update(flight);
             await _unitOfWork.SaveChangesAsync();
+            return Result.Success();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<Result> DeleteAsync(int id)
         {
             var flightRepo = _unitOfWork.FlightRepository;
             var flight = await flightRepo.GetByIdAsync(id);
 
             if (flight is null)
             {
-                throw new NotFoundException($"Flight",id);
+                return Result.NotFound($"Flight with Id={id} not found.");
             }
 
             var flightScheduleRepo = _unitOfWork.FlightScheduleRepository;
@@ -227,13 +242,14 @@ namespace AirportManagement.Application.Services
 
             if (hasSchedules)
             {
-                throw new ConflictException(
-                    "Flight cannot be deleted because it has associated schedules.");
+                return Result.Conflict("Flight cannot be deleted because it has associated schedules.");
             }
 
             await flightRepo.DeleteByIdAsync(id);
 
             await _unitOfWork.SaveChangesAsync();
+
+            return Result.Success();
         }
     }
 }

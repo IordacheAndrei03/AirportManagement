@@ -1,4 +1,5 @@
-﻿using AirportManagement.Application;
+﻿using AirportManagement.Api.Extensions;
+using AirportManagement.Application;
 using AirportManagement.Application.Dtos.TicketDtos;
 using AirportManagement.Application.Enums;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
@@ -24,39 +25,24 @@ namespace AirportManagement.Api.Controllers
         {
             var result = await _ticketService.CreateAsync(dto);
 
-            return result.Status switch
-            {
-                ResultStatus.Ok => StatusCode(StatusCodes.Status201Created, result),
-                ResultStatus.NotFound => NotFound(result),
-                ResultStatus.Invalid => BadRequest(result),
-                _ => BadRequest(result)
-            };
+            return this.ToCreatedResult(result);
         }
 
         [HttpGet("by-flight/{flightScheduleId:int}")]
         public async Task<ActionResult<IReadOnlyList<TicketByFlightScheduleDto>>> GetByFlightSchedule(int flightScheduleId)
         {
-            try
-            {
-                var result = await _ticketService.GetByFlightScheduleAsync(flightScheduleId);
-                return Ok(result);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new ValidationProblemDetails
-                {
-                    Title = "Invalid request",
-                    Detail = ex.Message
-                });
-            }
+            var result = await _ticketService.GetByFlightScheduleAsync(flightScheduleId);
+
+            return this.ToActionResult(result);
         }
 
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Staff")]
         public async Task<ActionResult> Delete(int id)
         {
-            await _ticketService.DeleteAsync(id);
-            return NoContent();
+            var result = await _ticketService.DeleteAsync(id);
+
+            return this.ToActionResult(result);
         }
 
         [HttpPut("{ticketId:int}/seat")]
@@ -66,13 +52,7 @@ namespace AirportManagement.Api.Controllers
         {
             var result = await _ticketService.UpdateSeatNumberAsync(ticketId, body.SeatNumber);
 
-            return result.Status switch
-            {
-                ResultStatus.Ok => Ok(result),
-                ResultStatus.NotFound => NotFound(result),
-                ResultStatus.Invalid => BadRequest(result),
-                _ => BadRequest(result)
-            };
+            return this.ToActionResult(result);
         }
     }
 }

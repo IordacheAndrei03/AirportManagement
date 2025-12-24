@@ -29,35 +29,49 @@ namespace AirportManagement.Application.Services
         public async Task<ResultObject<TicketCreateResponseDto>> CreateAsync(TicketCreateRequestDto dto)
         {
             if (dto.BasePrice <= 0)
-                throw new ArgumentException("BasePrice must be positive.");
+            {
+                return ResultObject<TicketCreateResponseDto>.Invalid("BasePrice must be positive.");
+            }
 
             if (dto.Taxes < 0)
-                throw new ArgumentException("Taxes must be non-negative.");
+            {
+                return ResultObject<TicketCreateResponseDto>.Invalid("Taxes must be non-negative.");
+            }
 
             var booking = await _unitOfWork.BookingRepository.GetByIdWithStatusAsync(dto.BookingId);
             if (booking is null)
-                throw new KeyNotFoundException($"Booking {dto.BookingId} not found.");
+            {
+                return ResultObject<TicketCreateResponseDto>.NotFound($"Booking {dto.BookingId} not found.");
+            }
 
             var userId = _currentUserService.UserId;
-
             if (!string.Equals(booking.UserId, userId, StringComparison.Ordinal))
-                throw new InvalidOperationException("Cannot add ticket to another user's booking.");
-
+            {
+                return ResultObject<TicketCreateResponseDto>.Forbidden("Cannot add ticket to another user's booking.");
+            }
 
             if (!string.Equals(booking.BookingStatus?.Status, "Active", StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("Cannot add tickets to a non-active booking.");
+            {
+                return ResultObject<TicketCreateResponseDto>.Conflict("Cannot add tickets to a non-active booking.");
+            }
 
             var schedule = await _unitOfWork.FlightScheduleRepository.GetByIdAsync(dto.FlightScheduleId);
             if (schedule is null)
-                throw new KeyNotFoundException($"FlightSchedule {dto.FlightScheduleId} not found.");
+            {
+                return ResultObject<TicketCreateResponseDto>.NotFound($"FlightSchedule {dto.FlightScheduleId} not found.");
+            }
 
             var capacity = await _unitOfWork.FlightScheduleRepository.GetSeatCapacityAsync(dto.FlightScheduleId);
             if (capacity <= 0)
-                throw new InvalidOperationException("Aircraft capacity invalid.");
+            {
+                return ResultObject<TicketCreateResponseDto>.Invalid("Aircraft capacity invalid.");
+            }
 
             var soldSeats = await _unitOfWork.FlightScheduleRepository.GetActiveBookedSeatsAsync(dto.FlightScheduleId);
             if (soldSeats + 1 > capacity)
-                throw new InvalidOperationException("Not enough seats available for this flight schedule.");
+            {
+                return ResultObject<TicketCreateResponseDto>.Conflict("Not enough seats available for this flight schedule.");
+            }
 
             var ticket = new Ticket
             {
@@ -80,7 +94,7 @@ namespace AirportManagement.Application.Services
 
             await _unitOfWork.SaveChangesAsync();
 
-            var result =  new TicketCreateResponseDto
+            var result = new TicketCreateResponseDto
             {
                 FareClass = ticket.FareClass,
                 TotalPrice = ticket.TotalPrice,
@@ -95,17 +109,22 @@ namespace AirportManagement.Application.Services
         public async Task<ResultObject<TicketSeatUpdateDto>> UpdateSeatNumberAsync(int ticketId, string seatNumber)
         {
             if (ticketId <= 0)
+            {
                 return ResultObject<TicketSeatUpdateDto>.Invalid("TicketId must be positive.");
+            }
 
             if (string.IsNullOrWhiteSpace(seatNumber))
+            {
                 return ResultObject<TicketSeatUpdateDto>.Invalid("SeatNumber is required.");
+            }
 
             seatNumber = seatNumber.Trim();
 
-            // ia ticket-ul (EF entity sau domain, depinde cum ai repo-ul)
             var ticket = await _unitOfWork.TicketRepository.GetByIdAsync(ticketId);
             if (ticket is null)
+            {
                 return ResultObject<TicketSeatUpdateDto>.NotFound($"Ticket {ticketId} not found.");
+            }
 
             ticket.SeatNumber = seatNumber;
 
@@ -120,29 +139,35 @@ namespace AirportManagement.Application.Services
             return ResultObject<TicketSeatUpdateDto>.Success(dto);
         }
 
-        public async Task<IReadOnlyList<TicketByFlightScheduleDto>> GetByFlightScheduleAsync(int flightScheduleId)
+        public async Task<ResultObject<IReadOnlyList<TicketByFlightScheduleDto>>> GetByFlightScheduleAsync(int flightScheduleId)
         {
             if (flightScheduleId <= 0)
-                throw new ArgumentException("FlightScheduleId must be positive.", nameof(flightScheduleId));
+            {
+                return ResultObject<IReadOnlyList<TicketByFlightScheduleDto>>.Invalid("FlightScheduleId must be positive.");
+            }
 
             var tickets = await _unitOfWork.TicketRepository.GetByFlightScheduleAsync(flightScheduleId);
 
-            return tickets.Select(t => _mapper.Map<TicketByFlightScheduleDto>(t)).ToList();
+            var dtoList = tickets.Select(t => _mapper.Map<TicketByFlightScheduleDto>(t)).ToList();
+
+            return ResultObject<IReadOnlyList<TicketByFlightScheduleDto>>.Success(dtoList);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<Result> DeleteAsync(int id)
         {
             var ticketRepo = _unitOfWork.TicketRepository;
             var ticket = await _unitOfWork.TicketRepository.GetByIdAsync(id);
 
             if (ticket is null)
             {
-                throw new NotFoundException($"Flight", id);
+                return Result.NotFound($"Ticket with Id={id} not found.");
             }
 
             await _unitOfWork.TicketRepository.DeleteByIdAsync(id);
 
             await _unitOfWork.SaveChangesAsync();
+
+            return Result.Success();
         }
     }
 }

@@ -9,8 +9,8 @@ namespace AirportManagement.Application.Interfaces.ServiceInterfaces
 {
     public interface IBookingService
     {
-        Task<BookingCreateResponseDto> CreateAsync();
-        Task<BookingDetailsDto?> GetByCodeAsync(string code);
-        Task CancelAsync(string code);
+        Task<ResultObject<BookingCreateResponseDto>> CreateAsync();
+        Task<ResultObject<BookingDetailsDto>> GetByCodeAsync(string code);
+        Task<Result> CancelAsync(string code);
     }
 }

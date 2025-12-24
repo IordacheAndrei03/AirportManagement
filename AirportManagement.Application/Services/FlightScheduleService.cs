@@ -34,7 +34,7 @@ namespace AirportManagement.Application.Services
 
             if (entity is null)
             {
-                throw new NotFoundException("FlightSchedule", id);
+                return ResultObject<FlightScheduleDetailsDto>.NotFound($"FlightSchedule with Id={id} not found.");
             }
 
             var flightScheduleDto = _mapper.Map<FlightScheduleDetailsDto>(entity);
@@ -46,15 +46,14 @@ namespace AirportManagement.Application.Services
         {
             if (days <= 0)
             {
-                throw new BadRequestException("Number of days must be positive");
+                return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.Invalid("Number of days must be positive");
             }
 
             var rows = await _unitOfWork.FlightScheduleRepository.GetUpcomingStatsAsync(days);
 
             if (rows == null || rows.Count == 0)
             {
-                return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.NotFound(
-                    $"No upcoming flights found for the {days} days.");
+                return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.NotFound($"No upcoming flights found for the {days} days.");
             }
 
             var result = _mapper.Map<IReadOnlyList<UpcomingSchedulesDto>>(rows);
@@ -62,11 +61,11 @@ namespace AirportManagement.Application.Services
             return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.Success(result);
         }
 
-        public async Task<int> CreateAsync(FlightScheduleCreateDto dto)
+        public async Task<ResultObject<int>> CreateAsync(FlightScheduleCreateDto dto)
         {
             if (dto.ScheduledArrivalUtc <= dto.ScheduledDepartureUtc)
             {
-                throw new BadRequestException("Arrival must be after departure.");
+                return ResultObject<int>.Invalid("Arrival must be after departure.");
             }
 
             var hasOverlap = await _unitOfWork.FlightScheduleRepository.HasGateOverlapAsync(
@@ -75,14 +74,14 @@ namespace AirportManagement.Application.Services
 
             if (hasOverlap)
             {
-                throw new ConflictException("Gate is already used for this time interval.");
+                return ResultObject<int>.Conflict("Gate is already used for this time interval.");
             }
 
             var plannedStatusId = await _unitOfWork.FlightStatusRepository.GetStatusIdByNameAsync(FlightScheduleStatus.Scheduled);
 
             if (plannedStatusId == 0)
             {
-                throw new NotFoundException("Flight status", plannedStatusId);
+                return ResultObject<int>.NotFound("Flight status 'Scheduled' not found.");
             }
 
             var entity = new FlightSchedule
@@ -98,18 +97,22 @@ namespace AirportManagement.Application.Services
             await _unitOfWork.FlightScheduleRepository.AddAsync(entity);
             await _unitOfWork.SaveChangesAsync();
 
-            return entity.Id;
+            return ResultObject<int>.Success(entity.Id);
         }
 
-        public async Task<ScheduleImportResultDto> ImportAsync(
+        public async Task<ResultObject<ScheduleImportResultDto>> ImportAsync(
          IFormFile file,
          CancellationToken cancellationToken = default)
         {
             if (file == null || file.Length == 0)
-                throw new ArgumentException("File is empty.");
+            {
+                return ResultObject<ScheduleImportResultDto>.Invalid("File is empty.");
+            }
 
             if (file.Length > 2 * 1024 * 1024)
-                throw new ArgumentException("File is too large. Max 2 MB.");
+            {
+                return ResultObject<ScheduleImportResultDto>.Invalid("File is too large. Max 2 MB.");
+            }
 
             List<ScheduleImportRowDto>? rows;
 
@@ -122,10 +125,14 @@ namespace AirportManagement.Application.Services
             }
 
             if (rows == null || rows.Count == 0)
-                throw new ArgumentException("File does not contain any schedules.");
+            {
+                return ResultObject<ScheduleImportResultDto>.Invalid("File does not contain any schedules.");
+            }
 
             if (rows.Count > 1000)
-                throw new ArgumentException("File contains more than 1000 rows (limit 1000).");
+            {
+                return ResultObject<ScheduleImportResultDto>.Invalid("File contains more than 1000 rows (limit 1000).");
+            }
 
             var result = new ScheduleImportResultDto { Total = rows.Count };
 
@@ -228,11 +235,14 @@ namespace AirportManagement.Application.Services
                 }
                 catch (Exception ex)
                 {
-                    result.Errors.Add(new ScheduleImportErrorDto { Row = rowIndex, Message = ex.Message });
+                    result.Errors.Add(new ScheduleImportErrorDto
+                    {
+                        Row = rowIndex,
+                        Message = ex.Message
+                    });
                 }
             }
-
-            return result;
+            return ResultObject<ScheduleImportResultDto>.Success(result);
         }
     }
 }

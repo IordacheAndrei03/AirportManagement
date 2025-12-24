@@ -11,9 +11,9 @@ namespace AirportManagement.Application.Interfaces.ServiceInterfaces
     {
         Task<ResultObject<TicketCreateResponseDto>> CreateAsync(TicketCreateRequestDto dto);
 
-        Task<IReadOnlyList<TicketByFlightScheduleDto>> GetByFlightScheduleAsync(int flightScheduleId);
+        Task<ResultObject<IReadOnlyList<TicketByFlightScheduleDto>>> GetByFlightScheduleAsync(int flightScheduleId);
 
-        Task DeleteAsync(int id);
+        Task<Result> DeleteAsync(int id);
 
         Task<ResultObject<TicketSeatUpdateDto>> UpdateSeatNumberAsync(int ticketId, string seatNumber);
     }
