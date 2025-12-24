@@ -4,6 +4,7 @@ using AirportManagement.Application.Enums;
 using AirportManagement.Application.Exceptions;
 using AirportManagement.Application.Interfaces.RepositoryInterfaces;
 using AirportManagement.Application.Interfaces.ServiceInterfaces;
+using AirportManagement.Application.Interfaces.ServiceInterfaces.ImportInterfaces;
 using AirportManagement.Domain.Entities;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -21,11 +22,15 @@ namespace AirportManagement.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IScheduleImportParser _importParser;
+        private readonly IScheduleImportRowProcessor _rowProcessor;
 
-        public FlightScheduleService(IUnitOfWork unitOfWork, IMapper mapper)
+        public FlightScheduleService(IUnitOfWork unitOfWork, IMapper mapper, IScheduleImportParser importParser, IScheduleImportRowProcessor rowProcessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _importParser = importParser;
+            _rowProcessor = rowProcessor;
         }
 
         public async Task<ResultObject<FlightScheduleDetailsDto>> GetByIdAsync(int id)
@@ -100,48 +105,17 @@ namespace AirportManagement.Application.Services
             return ResultObject<int>.Success(entity.Id);
         }
 
-        public async Task<ResultObject<ScheduleImportResultDto>> ImportAsync(
-         IFormFile file,
-         CancellationToken cancellationToken = default)
+        public async Task<ResultObject<ScheduleImportResultDto>> ImportAsync(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-            {
-                return ResultObject<ScheduleImportResultDto>.Invalid("File is empty.");
-            }
+            var rowsResult = await _importParser.ParseAsync(file);
+            if (!rowsResult.IsSuccess)
+                return ResultObject<ScheduleImportResultDto>.Invalid(rowsResult.Error!);
 
-            if (file.Length > 2 * 1024 * 1024)
-            {
-                return ResultObject<ScheduleImportResultDto>.Invalid("File is too large. Max 2 MB.");
-            }
-
-            List<ScheduleImportRowDto>? rows;
-
-            using (var stream = file.OpenReadStream())
-            {
-                rows = await JsonSerializer.DeserializeAsync<List<ScheduleImportRowDto>>(
-                    stream,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true },
-                    cancellationToken);
-            }
-
-            if (rows == null || rows.Count == 0)
-            {
-                return ResultObject<ScheduleImportResultDto>.Invalid("File does not contain any schedules.");
-            }
-
-            if (rows.Count > 1000)
-            {
-                return ResultObject<ScheduleImportResultDto>.Invalid("File contains more than 1000 rows (limit 1000).");
-            }
-
+            var rows = rowsResult.Value!;
             var result = new ScheduleImportResultDto { Total = rows.Count };
 
-            var plannedStatusId = await _unitOfWork.FlightStatusRepository.GetStatusIdByNameAsync(FlightScheduleStatus.Scheduled, cancellationToken);
-
-            var airlineRepo = _unitOfWork.AirlineRepository;
-            var airportRepo = _unitOfWork.AirportRepository;
-            var aircraftRepo = _unitOfWork.AircraftRepository;
-            var flightRepo = _unitOfWork.FlightRepository;
+            var plannedStatusId = await _unitOfWork.FlightStatusRepository
+                .GetStatusIdByNameAsync(FlightScheduleStatus.Scheduled);
 
             var rowIndex = 0;
 
@@ -151,97 +125,14 @@ namespace AirportManagement.Application.Services
 
                 try
                 {
-                    if (row.ScheduledArrivalUtc <= row.ScheduledDepartureUtc)
-                        throw new Exception("Arrival must be after departure.");
-
-                    var airline = await airlineRepo.GetByIataCodeAsync(row.AirlineIata)
-                        ?? throw new BadRequestException($"Unknown airline IATA code '{row.AirlineIata}'.");
-
-                    var originAirport = await airportRepo.GetByIataCodeAsync(row.OriginIata)
-                        ?? throw new BadRequestException($"Unknown origin airport IATA code '{row.OriginIata}'.");
-
-                    var destAirport = await airportRepo.GetByIataCodeAsync(row.DestinationIata)
-                        ?? throw new BadRequestException($"Unknown destination airport IATA code '{row.DestinationIata}'.");
-
-                    var aircraft = await aircraftRepo.GetByTailNoAsync(row.AssignedAircraftTail)
-                        ?? throw new BadRequestException($"Unknown aircraft tail number '{row.AssignedAircraftTail}'.");
-
-                    var flight = await _unitOfWork.FlightRepository
-                        .FindByAirlineNumberAndRouteAsync(airline.Id, row.FlightNumber, originAirport.Id, destAirport.Id, cancellationToken);
-
-                    if (flight == null)
-                    {
-                        var newFlight = new Flight
-                        {
-                            AirlineId = airline.Id,
-                            FlightNumber = row.FlightNumber,
-                            OriginAirport = originAirport.Id,
-                            DestinationAirport = destAirport.Id,
-                            DefaultAircraftId = aircraft.Id,
-                            IsActive = true
-                        };
-
-                        await _unitOfWork.FlightRepository.AddAsync(newFlight);
-                        await _unitOfWork.SaveChangesAsync();
-                        flight = newFlight;
-                    }
-
-                    var gate = await _unitOfWork.GateRepository
-                        .GetByAirportIdAndCodeAsync(originAirport.Id, row.GateCode);
-
-                    if (gate == null)
-                    {
-                        throw new Exception("Gate Does not exist}");
-                    }
-
-                    var existing = await _unitOfWork.FlightScheduleRepository
-                        .FindByFlightAndDepartureAsync(flight.Id, row.ScheduledDepartureUtc, cancellationToken);
-
-                    var hasOverlap = await _unitOfWork.FlightScheduleRepository.HasGateOverlapAsync(
-                       gate.Id,
-                       row.ScheduledDepartureUtc);
-
-                    if (hasOverlap)
-                    {
-                        throw new Exception($"Gate overlap at {row.OriginIata}:{row.GateCode} {row.ScheduledDepartureUtc:O}–{row.ScheduledArrivalUtc:O}");
-                    }
-
-                    if (existing == null)
-                    {
-                        var schedule = new FlightSchedule
-                        {
-                            FlightId = flight.Id,
-                            ScheduledDepartureUtc = row.ScheduledDepartureUtc,
-                            ScheduleArrivalUtc = row.ScheduledArrivalUtc,
-                            GateId = gate.Id,
-                            AssignedAircraftId = aircraft.Id,
-                            FlightStatusId = plannedStatusId
-                        };
-
-                        await _unitOfWork.FlightScheduleRepository.AddAsync(schedule);
-                        await _unitOfWork.SaveChangesAsync();
-                        result.Created++;
-                    }
-                    else
-                    {
-                        existing.ScheduleArrivalUtc = row.ScheduledArrivalUtc;
-                        existing.GateId = gate.Id;
-                        existing.AssignedAircraftId = aircraft.Id;
-                        existing.FlightStatusId = plannedStatusId;
-
-                        await _unitOfWork.SaveChangesAsync();
-                        result.Updated++;
-                    }
+                    await _rowProcessor.ProcessRowAsync(row, plannedStatusId, result);
                 }
                 catch (Exception ex)
                 {
-                    result.Errors.Add(new ScheduleImportErrorDto
-                    {
-                        Row = rowIndex,
-                        Message = ex.Message
-                    });
+                    result.Errors.Add(new ScheduleImportErrorDto { Row = rowIndex, Message = ex.Message });
                 }
             }
+
             return ResultObject<ScheduleImportResultDto>.Success(result);
         }
     }

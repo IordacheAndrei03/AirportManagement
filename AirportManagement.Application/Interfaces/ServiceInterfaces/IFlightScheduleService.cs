@@ -17,6 +17,6 @@ namespace AirportManagement.Application.Interfaces.ServiceInterfaces
 
         Task<ResultObject<int>> CreateAsync(FlightScheduleCreateDto dto);
 
-        Task<ResultObject<ScheduleImportResultDto>> ImportAsync(IFormFile file, CancellationToken cancellationToken = default);
+        Task<ResultObject<ScheduleImportResultDto>> ImportAsync(IFormFile file);
     }
 }

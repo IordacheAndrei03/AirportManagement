@@ -58,11 +58,10 @@ namespace AirportManagement.Api.Controllers
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "Staff")]
         public async Task<ActionResult<ScheduleImportResultDto>> Import(
-        [FromForm] ScheduleImportRequest request,
-        CancellationToken cancellationToken)
+        [FromForm] ScheduleImportRequest request)
         {
             var file = request.File;
-            var result = await _scheduleService.ImportAsync(file, cancellationToken);
+            var result = await _scheduleService.ImportAsync(file);
 
             return result.Status == ResultStatus.Ok && result.Value!.Errors.Count == 0
                 ? StatusCode(StatusCodes.Status201Created, result)
