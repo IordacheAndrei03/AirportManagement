@@ -42,10 +42,4 @@ namespace AirportManagement.Application.Middleware
             return context.Response.WriteAsync(response);
         }
     }
-
-    public class ErrorDetails
-    {
-        public string ErrorType { get; set; }
-        public string ErrorMessage { get; set; }
-    }
 }
