@@ -52,9 +52,7 @@ namespace AirportManagement.Application.Services
                 return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.NotFound($"No upcoming flights found for the {days} days.");
             }
 
-            var result = _mapper.Map<IReadOnlyList<UpcomingSchedulesDto>>(rows);
-
-            return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.Success(result);
+            return ResultObject<IReadOnlyList<UpcomingSchedulesDto>>.Success(rows);
         }
 
         public async Task<ResultObject<int>> CreateAsync(FlightScheduleCreateDto dto)
