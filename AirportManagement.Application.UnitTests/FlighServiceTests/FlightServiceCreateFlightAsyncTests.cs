@@ -27,11 +27,15 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         public async Task CreateFlightAsync_WhenAirlineUnknown_ReturnsInvalid()
         {
             var dto = CreateValidFlightCreateDto();
+
             _airlineRepository
                 .Setup(x => x.GetByIataCodeAsync(dto.AirlineIata))
                 .ReturnsAsync((Airline?)null);
+
             _airportRepository.Setup(x => x.GetByIataCodeAsync(dto.OriginIata)).ReturnsAsync(new Airport { Id = 10 });
+
             _airportRepository.Setup(x => x.GetByIataCodeAsync(dto.DestinationIata)).ReturnsAsync(new Airport { Id = 11 });
+
             _aircraftRepository.Setup(x => x.GetByTailNoAsync(dto.DefaultAircraftTail)).ReturnsAsync(new Aircraft { Id = 100 });
 
             var result = await _flightService.CreateFlightAsync(dto);
@@ -44,11 +48,15 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         public async Task CreateFlightAsync_WhenOriginAirportUnknown_ReturnsInvalid()
         {
             var dto = CreateValidFlightCreateDto();
+
             _airlineRepository.Setup(x => x.GetByIataCodeAsync(dto.AirlineIata)).ReturnsAsync(new Airline { Id = 1 });
+
             _airportRepository
                 .Setup(x => x.GetByIataCodeAsync(dto.OriginIata))
                 .ReturnsAsync((Airport?)null);
+
             _airportRepository.Setup(x => x.GetByIataCodeAsync(dto.DestinationIata)).ReturnsAsync(new Airport { Id = 11 });
+
             _aircraftRepository.Setup(x => x.GetByTailNoAsync(dto.DefaultAircraftTail)).ReturnsAsync(new Aircraft { Id = 100 });
 
             var result = await _flightService.CreateFlightAsync(dto);
@@ -61,11 +69,15 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         public async Task CreateFlightAsync_WhenDestinationAirportUnknown_ReturnsInvalid()
         {
             var dto = CreateValidFlightCreateDto();
+
             _airlineRepository.Setup(x => x.GetByIataCodeAsync(dto.AirlineIata)).ReturnsAsync(new Airline { Id = 1 });
+
             _airportRepository.Setup(x => x.GetByIataCodeAsync(dto.OriginIata)).ReturnsAsync(new Airport { Id = 10 });
+
             _airportRepository
                 .Setup(x => x.GetByIataCodeAsync(dto.DestinationIata))
                 .ReturnsAsync((Airport?)null);
+
             _aircraftRepository.Setup(x => x.GetByTailNoAsync(dto.DefaultAircraftTail)).ReturnsAsync(new Aircraft { Id = 100 });
 
             var result = await _flightService.CreateFlightAsync(dto);
@@ -78,9 +90,13 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         public async Task CreateFlightAsync_WhenAircraftUnknown_ReturnsInvalid()
         {
             var dto = CreateValidFlightCreateDto();
+
             _airlineRepository.Setup(x => x.GetByIataCodeAsync(dto.AirlineIata)).ReturnsAsync(new Airline { Id = 1 });
+
             _airportRepository.Setup(x => x.GetByIataCodeAsync(dto.OriginIata)).ReturnsAsync(new Airport { Id = 10 });
+
             _airportRepository.Setup(x => x.GetByIataCodeAsync(dto.DestinationIata)).ReturnsAsync(new Airport { Id = 11 });
+
             _aircraftRepository
                 .Setup(x => x.GetByTailNoAsync(dto.DefaultAircraftTail))
                 .ReturnsAsync((Aircraft?)null);
@@ -95,7 +111,9 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         public async Task CreateFlightAsync_WhenDuplicateRouteExists_ReturnsConflict()
         {
             var dto = CreateValidFlightCreateDto();
+
             ArrangeAllLookupsValid(dto, airlineId: 1, originId: 10, destinationId: 11, aircraftId: 100);
+
             _flightRepository
                 .Setup(x => x.ExistsDuplicateRouteAsync(1, dto.FlightNumber, 10, 11, null))
                 .ReturnsAsync(true);
@@ -110,10 +128,13 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         public async Task CreateFlightAsync_WhenMapperMakesAirportsEqual_ReturnsConflict()
         {
             var dto = CreateValidFlightCreateDto();
+
             ArrangeAllLookupsValid(dto, airlineId: 1, originId: 10, destinationId: 11, aircraftId: 100);
+
             _flightRepository
                 .Setup(x => x.ExistsDuplicateRouteAsync(1, dto.FlightNumber, 10, 11, null))
                 .ReturnsAsync(false);
+
             _mapper
                 .Setup(x => x.Map<Flight>(It.IsAny<Flight>()))
                 .Returns<Flight>(f =>
@@ -133,13 +154,17 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         public async Task CreateFlightAsync_WhenValid_AddsFlightAndReturnsId()
         {
             var dto = CreateValidFlightCreateDto();
+
             ArrangeAllLookupsValid(dto, airlineId: 1, originId: 10, destinationId: 11, aircraftId: 100);
+
             _flightRepository
                 .Setup(x => x.ExistsDuplicateRouteAsync(1, dto.FlightNumber, 10, 11, null))
                 .ReturnsAsync(false);
+
             _mapper
                 .Setup(x => x.Map<Flight>(It.IsAny<Flight>()))
                 .Returns<Flight>(f => f);
+
             CaptureAddFlight(forcedId: 999);
 
             var result = await _flightService.CreateFlightAsync(dto);

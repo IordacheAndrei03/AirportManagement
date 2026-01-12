@@ -34,7 +34,6 @@ public abstract class FlightServiceTestBase
         _unitOfWork.SetupGet(x => x.AirlineRepository).Returns(_airlineRepository.Object);
         _unitOfWork.SetupGet(x => x.AirportRepository).Returns(_airportRepository.Object);
         _unitOfWork.SetupGet(x => x.AircraftRepository).Returns(_aircraftRepository.Object);
-
         _unitOfWork.Setup(x => x.SaveChangesAsync()).ReturnsAsync(1);
 
         _flightService = new FlightService(_unitOfWork.Object, _mapper.Object);

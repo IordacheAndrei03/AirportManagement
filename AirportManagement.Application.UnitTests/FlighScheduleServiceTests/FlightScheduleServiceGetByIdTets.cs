@@ -32,9 +32,11 @@ namespace AirportManagement.Application.UnitTests.FlighScheduleServiceTests
         {
             var entity = new FlightSchedule { Id = 10 };
             var dto = new FlightScheduleDetailsDto();
+
             _flightScheduleRepository
                 .Setup(x => x.GetByIdWithDetailsAsync(10))
                 .ReturnsAsync(entity);
+
             _mapper
                 .Setup(x => x.Map<FlightScheduleDetailsDto>(entity))
                 .Returns(dto);

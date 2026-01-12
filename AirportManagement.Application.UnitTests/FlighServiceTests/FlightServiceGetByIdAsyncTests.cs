@@ -30,9 +30,11 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         {
             var flight = new Flight { Id = 10 };
             var dto = new FlightDetailsDto();
+
             _flightRepository
                 .Setup(x => x.GetByIdWithDetailsAsync(10))
                 .Returns(Task.FromResult<Flight?>(flight));
+
             _mapper
                 .Setup(x => x.Map<FlightDetailsDto>(flight))
                 .Returns(dto);

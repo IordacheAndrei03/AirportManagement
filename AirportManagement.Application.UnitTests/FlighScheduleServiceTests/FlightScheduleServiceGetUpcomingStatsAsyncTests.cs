@@ -26,6 +26,7 @@ namespace AirportManagement.Application.UnitTests.FlighScheduleServiceTests
         public async Task GetUpcomingStatsAsync_WhenRepoReturnsEmpty_ReturnsNotFound()
         {
             IReadOnlyList<UpcomingSchedulesDto> rows = Array.Empty<UpcomingSchedulesDto>();
+
             _flightScheduleRepository
                 .Setup(x => x.GetUpcomingStatsAsync(5))
                 .ReturnsAsync(rows);
@@ -54,6 +55,7 @@ namespace AirportManagement.Application.UnitTests.FlighScheduleServiceTests
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
             Assert.Equal(rows, result.Value);
+
             _flightScheduleRepository.Verify(x => x.GetUpcomingStatsAsync(5), Times.Once);
         }
     }

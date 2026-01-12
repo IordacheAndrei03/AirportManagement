@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirportManagement.Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirportManagement.Application.UnitTests", "AirportManagement.Application.UnitTests\AirportManagement.Application.UnitTests.csproj", "{DE7AA774-9B07-4E1A-A818-F7A91788DB01}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirportManagement.Api.UnitTests", "AirportManagement.Api.UnitTests\AirportManagement.Api.UnitTests.csproj", "{4D7DE085-D6C5-4720-B62F-4A8BA7E0C247}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{DE7AA774-9B07-4E1A-A818-F7A91788DB01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE7AA774-9B07-4E1A-A818-F7A91788DB01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE7AA774-9B07-4E1A-A818-F7A91788DB01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D7DE085-D6C5-4720-B62F-4A8BA7E0C247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D7DE085-D6C5-4720-B62F-4A8BA7E0C247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D7DE085-D6C5-4720-B62F-4A8BA7E0C247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D7DE085-D6C5-4720-B62F-4A8BA7E0C247}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

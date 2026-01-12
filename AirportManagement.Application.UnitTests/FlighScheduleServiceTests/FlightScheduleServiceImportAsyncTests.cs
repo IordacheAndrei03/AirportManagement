@@ -16,6 +16,7 @@ namespace AirportManagement.Application.UnitTests.FlighScheduleServiceTests
         public async Task ImportAsync_WhenParserInvalid_ReturnsInvalid()
         {
             var file = new Mock<IFormFile>().Object;
+
             _scheduleImportParser
                 .Setup(x => x.ParseAsync(file))
                 .ReturnsAsync(ResultObject<List<ScheduleImportRowDto>>.Invalid("bad file"));
@@ -41,9 +42,11 @@ namespace AirportManagement.Application.UnitTests.FlighScheduleServiceTests
                 .Setup(x => x.ParseAsync(file))
                 .ReturnsAsync(ResultObject<List<ScheduleImportRowDto>>.Success(rows));
             ArrangeScheduledStatusId(12);
+
             _scheduleImportRowProcessor
                 .Setup(x => x.ProcessRowAsync(rows[0], 12, It.IsAny<ScheduleImportResultDto>()))
                 .Returns(Task.CompletedTask);
+
             _scheduleImportRowProcessor
                 .Setup(x => x.ProcessRowAsync(rows[1], 12, It.IsAny<ScheduleImportResultDto>()))
                 .Returns(Task.CompletedTask);
@@ -71,12 +74,15 @@ namespace AirportManagement.Application.UnitTests.FlighScheduleServiceTests
                 .Setup(x => x.ParseAsync(file))
                 .ReturnsAsync(ResultObject<List<ScheduleImportRowDto>>.Success(rows));
             ArrangeScheduledStatusId(12);
+
             _scheduleImportRowProcessor
                 .Setup(x => x.ProcessRowAsync(rows[0], 12, It.IsAny<ScheduleImportResultDto>()))
                 .Returns(Task.CompletedTask);
+
             _scheduleImportRowProcessor
                 .Setup(x => x.ProcessRowAsync(rows[1], 12, It.IsAny<ScheduleImportResultDto>()))
                 .ThrowsAsync(new Exception("boom"));
+
             _scheduleImportRowProcessor
                 .Setup(x => x.ProcessRowAsync(rows[2], 12, It.IsAny<ScheduleImportResultDto>()))
                 .Returns(Task.CompletedTask);

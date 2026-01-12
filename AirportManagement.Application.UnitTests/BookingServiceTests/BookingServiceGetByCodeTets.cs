@@ -21,6 +21,7 @@ namespace AirportManagement.Application.UnitTests.BookingServiceTests
             Assert.False(result.IsSuccess);
             Assert.Equal(ResultStatus.Invalid, result.Status);
             Assert.Equal("Booking code is required.", result.Error);
+
             _bookingRepository.Verify(r => r.GetByConfirmationCodeAsync(It.IsAny<string>()), Times.Never);
             _ticketRepository.Verify(r => r.GetByBookingIdAsync(It.IsAny<int>()), Times.Never);
         }
@@ -28,80 +29,75 @@ namespace AirportManagement.Application.UnitTests.BookingServiceTests
         [Fact]
         public async Task GetByCodeAsync_WhenBookingNotFound_ReturnsNotFound()
         {
-            _bookingRepository.Setup(r => r.GetByConfirmationCodeAsync("ABC"))
-                .Returns(Task.FromResult<DomainBooking?>(null));
+            _bookingRepository
+                .Setup(r => r.GetByConfirmationCodeAsync(DefaultCode))
+                .Returns(ReturnNull<DomainBooking>());
 
-            var result = await _sut.GetByCodeAsync("ABC");
+            var result = await _sut.GetByCodeAsync(DefaultCode);
 
             Assert.False(result.IsSuccess);
             Assert.Equal(ResultStatus.NotFound, result.Status);
-            Assert.Contains("ABC", result.Error!);
+            Assert.Contains(DefaultCode, result.Error!);
             _ticketRepository.Verify(r => r.GetByBookingIdAsync(It.IsAny<int>()), Times.Never);
         }
 
         [Fact]
         public async Task GetByCodeAsync_WhenTicketIsNull_ReturnsDtoWithTotalAmountZero()
         {
-            var booking = new DomainBooking
-            {
-                Id = 1,
-                UserId = "user-1",
-                BookingStatusId = 10,
-                CreatedUtc = DateTime.UtcNow,
-                ConfirmationCode = "ABC",
-                Quantity = 2,
-                BookingStatus = new DomainBookingStatus { Id = 10, Status = "Active" }
-            };
-            _bookingRepository.Setup(r => r.GetByConfirmationCodeAsync("ABC"))
-                .Returns(Task.FromResult<DomainBooking?>(booking));
-            _ticketRepository.Setup(r => r.GetByBookingIdAsync(1))
-                .Returns(Task.FromResult<DomainTicket?>(null));
+            var booking = CreateBooking(
+                id: 1,
+                code: DefaultCode,
+                statusId: 10,
+                userId: DefaultUserId,
+                quantity: 2,
+                status: CreateStatus(10, ActiveStatusName));
 
-            var result = await _sut.GetByCodeAsync("ABC");
+            _bookingRepository
+                .Setup(r => r.GetByConfirmationCodeAsync(DefaultCode))
+                .Returns(Task.FromResult<DomainBooking?>(booking));
+
+            _ticketRepository
+                .Setup(r => r.GetByBookingIdAsync(1))
+                .Returns(ReturnNull<DomainTicket>());
+
+            var result = await _sut.GetByCodeAsync(DefaultCode);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
-            Assert.Equal("ABC", result.Value!.ConfirmationCode);
-            Assert.Equal("Active", result.Value.Status);
+            Assert.Equal(DefaultCode, result.Value!.ConfirmationCode);
+            Assert.Equal(ActiveStatusName, result.Value.Status);
             Assert.Equal(0m, result.Value.TotalAmount);
         }
 
         [Fact]
         public async Task GetByCodeAsync_WhenTicketExists_ReturnsFullDto_AndCalculatesTotal()
         {
-            var booking = new DomainBooking
-            {
-                Id = 1,
-                UserId = "user-1",
-                BookingStatusId = 10,
-                CreatedUtc = DateTime.UtcNow,
-                ConfirmationCode = "ABC",
-                Quantity = 2,
-                BookingStatus = new DomainBookingStatus { Id = 10, Status = "Active" }
-            };
+            var booking = CreateBooking(
+                id: 1,
+                code: DefaultCode,
+                statusId: 10,
+                userId: DefaultUserId,
+                quantity: 2,
+                status: CreateStatus(10, ActiveStatusName));
 
-            var ticket = new DomainTicket
-            {
-                Id = 10,
-                BookingId = 1,
-                FlightScheduleId = 5,
-                PassangerFullName = "John Doe",
-                PassangerEmail = "john@doe.com",
-                TotalPrice = 100m,
-                Currency = "EUR",
-                FareClass = "Y",
-                SeatNumber = "1A",
-                Booking = null!,
-                FlightSchedule = null!
-            };
+            var ticket = CreateTicket(
+                id: 10,
+                bookingId: 1,
+                scheduleId: 5,
+                totalPrice: 100m,
+                currency: "EUR",
+                passengerName: "John Doe",
+                passengerEmail: "john@doe.com");
 
-            _bookingRepository.Setup(r => r.GetByConfirmationCodeAsync("ABC"))
+            _bookingRepository
+                .Setup(r => r.GetByConfirmationCodeAsync(DefaultCode))
                 .Returns(Task.FromResult<DomainBooking?>(booking));
 
-            _ticketRepository.Setup(r => r.GetByBookingIdAsync(1))
+            _ticketRepository
+                .Setup(r => r.GetByBookingIdAsync(1))
                 .Returns(Task.FromResult<DomainTicket?>(ticket));
 
-            var result = await _sut.GetByCodeAsync("ABC");
+            var result = await _sut.GetByCodeAsync(DefaultCode);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
@@ -116,24 +112,23 @@ namespace AirportManagement.Application.UnitTests.BookingServiceTests
         [Fact]
         public async Task GetByCodeAsync_WhenBookingStatusIsNull_ReturnsUnknownStatus()
         {
-            var booking = new DomainBooking
-            {
-                Id = 1,
-                UserId = "user-1",
-                BookingStatusId = 10,
-                CreatedUtc = DateTime.UtcNow,
-                ConfirmationCode = "ABC",
-                Quantity = 1,
-                BookingStatus = null! 
-            };
+            var booking = CreateBooking(
+                id: 1,
+                code: DefaultCode,
+                statusId: 10,
+                userId: DefaultUserId,
+                quantity: 1,
+                status: null);
 
-            _bookingRepository.Setup(r => r.GetByConfirmationCodeAsync("ABC"))
+            _bookingRepository
+                .Setup(r => r.GetByConfirmationCodeAsync(DefaultCode))
                 .Returns(Task.FromResult<DomainBooking?>(booking));
 
-            _ticketRepository.Setup(r => r.GetByBookingIdAsync(1))
-                .Returns(Task.FromResult<DomainTicket?>(null));
+            _ticketRepository
+                .Setup(r => r.GetByBookingIdAsync(1))
+                .Returns(ReturnNull<DomainTicket>());
 
-            var result = await _sut.GetByCodeAsync("ABC");
+            var result = await _sut.GetByCodeAsync(DefaultCode);
 
             Assert.True(result.IsSuccess);
             Assert.Equal("Unknown", result.Value!.Status);

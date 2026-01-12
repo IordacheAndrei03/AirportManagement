@@ -58,18 +58,23 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         public async Task SearchByRouteAndDateAsync_WhenPageAndPageSizeAreZero_UsesDefaults()
         {
             var departureDate = CreateValidDepartureDate();
+
             var expectedDepartureUtc = new DateTime(2026, 1, 9, 0, 0, 0, DateTimeKind.Utc);
+
             IReadOnlyList<FlightSchedule> schedules = new List<FlightSchedule>
               {
                   new FlightSchedule { Id = 1 }
               };
+
             IReadOnlyList<FlightSearchScheduleDto> dtoList = new List<FlightSearchScheduleDto>
               {
                   new FlightSearchScheduleDto()
               };
+
             _flightScheduleRepository
                 .Setup(x => x.SearchUpcomingByRouteAndDateAsync("OTP", "LHR", expectedDepartureUtc, 1, 20))
                 .ReturnsAsync(schedules);
+
             _mapper
                 .Setup(x => x.Map<IReadOnlyList<FlightSearchScheduleDto>>(schedules))
                 .Returns(dtoList);
@@ -84,12 +89,17 @@ namespace AirportManagement.Application.UnitTests.FlighServiceBaseTests
         public async Task SearchByRouteAndDateAsync_WhenPageSizeTooLarge_ClampsTo100()
         {
             var departureDate = CreateValidDepartureDate();
+
             var expectedDepartureUtc = new DateTime(2026, 1, 9, 0, 0, 0, DateTimeKind.Utc);
+
             IReadOnlyList<FlightSchedule> schedules = new List<FlightSchedule>();
+
             IReadOnlyList<FlightSearchScheduleDto> dtoList = new List<FlightSearchScheduleDto>();
+
             _flightScheduleRepository
                 .Setup(x => x.SearchUpcomingByRouteAndDateAsync("OTP", "LHR", expectedDepartureUtc, 2, 100))
                 .ReturnsAsync(schedules);
+
             _mapper
                 .Setup(x => x.Map<IReadOnlyList<FlightSearchScheduleDto>>(schedules))
                 .Returns(dtoList);

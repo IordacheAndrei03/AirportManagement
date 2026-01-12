@@ -74,6 +74,5 @@ namespace AirportManagement.Api.Controllers
 
             return this.ToActionResult(result);
         }
-
     }
 }
